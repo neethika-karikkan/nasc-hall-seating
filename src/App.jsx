@@ -642,7 +642,10 @@ function App() {
       const newPrefix = extractPrefix(editValue);
       const newNumber = extractNumber(editValue);
 
-      
+      if (!newPrefix || newNumber === null) {
+        alert('Invalid register number format');
+        return;
+      }
 
       // If this seat is part of a sequence, renumber the entire sequence
       if (sequenceId !== null && sequenceIndex !== null) {
@@ -985,24 +988,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 p-4 md:p-6">
       {/* Floating Stats */}
-      <div className="fixed top-4 right-4 z-10 bg-white rounded-2xl p-4 border border-purple-200 shadow-xl">
-        <div className="flex items-center space-x-4">
-          <div className="text-center">
-            <div className="text-gray-600 text-sm">Grid</div>
-            <div className="text-2xl font-bold text-purple-700">{rows}×{columns}</div>
-          </div>
-          <div className="h-8 w-px bg-purple-200"></div>
-          <div className="text-center">
-            <div className="text-gray-600 text-sm">Seats</div>
-            <div className="text-2xl font-bold text-purple-700">{totalFilledSeats}/{totalSeats}</div>
-          </div>
-          <div className="h-8 w-px bg-purple-200"></div>
-          <div className="text-center">
-            <div className="text-gray-600 text-sm">Students</div>
-            <div className="text-2xl font-bold text-emerald-600">{totalStudents}</div>
-          </div>
-        </div>
-      </div>
+     
 
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -1105,7 +1091,7 @@ function App() {
                         className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                         placeholder="Rows"
                       />
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Rows</div>
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">r</div>
                     </div>
                     <span className="self-center text-gray-400">×</span>
                     <div className="relative flex-1">
@@ -1118,7 +1104,7 @@ function App() {
                         className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                         placeholder="Cols"
                       />
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Cols</div>
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">c</div>
                     </div>
                   </div>
                 </div>
@@ -1204,7 +1190,7 @@ function App() {
               {/* Seating Preferences */}
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-4">Fill Side First</label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mb-6">
                   <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'left' ? 'scale-105' : 'hover:scale-105'}`}>
                     <input
                       type="radio"
@@ -1245,6 +1231,74 @@ function App() {
                       </div>
                     </div>
                   </label>
+                </div>
+
+                {/* Quick Stats in one row UNDER the side selection */}
+                <div className="grid grid-cols-4 gap-4">
+                  {/* Total Seats */}
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <div className="text-sm text-purple-600 mb-1">Total Seats</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-gray-800">{totalSeats}</div>
+                      <div className="text-sm text-emerald-600 font-semibold">
+                        {totalFilledSeats} filled
+                      </div>
+                    </div>
+                    <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                        style={{ width: `${(totalFilledSeats/totalSeats)*100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  {/* Left Side Available */}
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <div className="text-sm text-purple-600 mb-1">Left Available</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-gray-800">{leftAvailableSeats}</div>
+                      <div className="text-xs text-gray-500">
+                        of {totalSeatsPerSide}
+                      </div>
+                    </div>
+                    <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                        style={{ width: `${(leftAvailableSeats/totalSeatsPerSide)*100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  {/* Right Side Available */}
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <div className="text-sm text-purple-600 mb-1">Right Available</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-gray-800">{rightAvailableSeats}</div>
+                      <div className="text-xs text-gray-500">
+                        of {totalSeatsPerSide}
+                      </div>
+                    </div>
+                    <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                        style={{ width: `${(rightAvailableSeats/totalSeatsPerSide)*100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  {/* Total Students */}
+                  <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
+                    <div className="text-sm text-emerald-600 mb-1">Total Students</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-emerald-700">{totalStudents}</div>
+                      <div className="text-xs text-gray-500">
+                        {courses.length} course{courses.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2">
+                      Across all courses
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1385,7 +1439,7 @@ function App() {
                 </div>
               </div>
               
-              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                 {courses.length > 0 ? (
                   courses.map((course) => (
                     <div 
@@ -1425,67 +1479,7 @@ function App() {
               </div>
             </div>
 
-            {/* Quick Stats - SECOND (moved up) */}
-            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center mb-6">
-                <span className="mr-3 text-3xl text-purple-500">📈</span>
-                Quick Stats
-              </h2>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center">
-                      <span className="text-purple-600">💺</span>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-600">Total Seats</div>
-                      <div className="text-xl font-bold text-gray-800">{totalSeats}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-gray-600">Filled</div>
-                    <div className="text-xl font-bold text-emerald-600">{totalFilledSeats}</div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-                    <div className="text-sm text-purple-600 mb-1">Left Side</div>
-                    <div className="text-2xl font-bold text-gray-800">{leftAvailableSeats} available</div>
-                    <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
-                        style={{ width: `${(leftAvailableSeats/totalSeatsPerSide)*100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-                    <div className="text-sm text-purple-600 mb-1">Right Side</div>
-                    <div className="text-2xl font-bold text-gray-800">{rightAvailableSeats} available</div>
-                    <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
-                        style={{ width: `${(rightAvailableSeats/totalSeatsPerSide)*100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-emerald-600">Total Students</div>
-                    <div className="text-3xl font-bold text-emerald-700">{totalStudents}</div>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-2">
-                    Across {courses.length} course{courses.length !== 1 ? 's' : ''}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Summary Preview - THIRD */}
+            {/* Summary Preview - SECOND */}
             <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center mb-6">
                 <span className="mr-3 text-3xl text-purple-500">📊</span>
