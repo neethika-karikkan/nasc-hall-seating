@@ -70,6 +70,10 @@ function App() {
   // State to track sequences
   const [sequenceCounter, setSequenceCounter] = useState(1);
 
+  // Mobile menu state
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [activeSection, setActiveSection] = useState('seating'); // 'seating', 'courses', 'summary'
+
   // Reinitialize seating data when rows or columns change
   useEffect(() => {
     const newSeatingData = initializeSeatingData();
@@ -741,15 +745,93 @@ function App() {
     window.print();
   };
 
+  // Toggle mobile menu
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
+  };
+
   // Calculate available seats
   const leftAvailableSeats = totalSeatsPerSide - leftSidePosition.filledCount;
   const rightAvailableSeats = totalSeatsPerSide - rightSidePosition.filledCount;
   const totalFilledSeats = leftSidePosition.filledCount + rightSidePosition.filledCount;
   const totalStudents = courses.reduce((sum, course) => sum + course.regCount, 0);
 
+  // Mobile menu items
+  const mobileMenuItems = [
+    { id: 'seating', label: 'Seating Arrangement', icon: '🪑' },
+    { id: 'courses', label: 'Courses', icon: '📚', count: courses.length },
+    { id: 'summary', label: 'Summary', icon: '📊' },
+    { id: 'add', label: 'Add Course', icon: '➕' }
+  ];
+
   return (
     <div className="App">
-      <div className="header print-hide">
+      {/* Mobile Header */}
+      <div className="mobile-header print-hide">
+        <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+          ☰
+        </button>
+        <div className="mobile-title">
+          <h1>Hall Seating</h1>
+          <div className="mobile-subtitle">
+            {rows}×{columns} Grid • {totalFilledSeats}/{totalSeats} Filled
+          </div>
+        </div>
+        <button className="mobile-print-btn" onClick={handlePrint}>
+          🖨️
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {showMobileMenu && (
+        <div className="mobile-menu-overlay" onClick={() => setShowMobileMenu(false)}>
+          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
+            <div className="mobile-menu-header">
+              <h3>Navigation</h3>
+              <button className="close-menu-btn" onClick={() => setShowMobileMenu(false)}>✕</button>
+            </div>
+            <div className="mobile-menu-items">
+              {mobileMenuItems.map(item => (
+                <button
+                  key={item.id}
+                  className={`mobile-menu-item ${activeSection === item.id ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    setShowMobileMenu(false);
+                    if (item.id === 'add') {
+                      // Scroll to add course form
+                      document.querySelector('.current-course-form')?.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      // Scroll to the appropriate section
+                      document.querySelector(`.${item.id}-section`)?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <span className="menu-item-icon">{item.icon}</span>
+                  <span className="menu-item-label">{item.label}</span>
+                  {item.count !== undefined && item.count > 0 && (
+                    <span className="menu-item-count">{item.count}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="mobile-menu-footer">
+              <div className="mobile-stats">
+                <div className="mobile-stat">
+                  <span className="stat-label">Total Students:</span>
+                  <span className="stat-value">{totalStudents}</span>
+                </div>
+                <div className="mobile-stat">
+                  <span className="stat-label">Available Seats:</span>
+                  <span className="stat-value">{totalSeats - totalFilledSeats}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="desktop-header print-hide">
         <h1>NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</h1>
         <p className="subtitle">
           (Affiliated to Bharathiar University Accredited with "A+" Grade by NAAC,<br />
@@ -763,82 +845,93 @@ function App() {
       <hr className="divider print-hide" />
 
       <div className="exam-info">
-        <h2 className="center-title">NASC - HALL SEATING ARRANGEMENT By Neethika</h2>
+        <h2 className="center-title">HALL SEATING ARRANGEMENT</h2>
 
         <div className="exam-details-input print-hide">
-          <div className="exam-input-group">
-            <label>DATE OF EXAMINATION:</label>
-            <input
-              type="date"
-              value={examDate}
-              onChange={(e) => setExamDate(e.target.value)}
-              className="exam-input"
-            />
-          </div>
-
-          <div className="exam-input-group">
-            <label>SESSION:</label>
-            <div className="session-radio-group">
-              <label className="session-option">
-                <input
-                  type="radio"
-                  value="AM"
-                  checked={session === 'AM'}
-                  onChange={() => setSession('AM')}
-                />
-                <span>AM</span>
-              </label>
-              <label className="session-option">
-                <input
-                  type="radio"
-                  value="PM"
-                  checked={session === 'PM'}
-                  onChange={() => setSession('PM')}
-                />
-                <span>PM</span>
-              </label>
+          <div className="exam-grid">
+            <div className="exam-input-group">
+              <label>DATE OF EXAMINATION:</label>
+              <input
+                type="date"
+                value={examDate}
+                onChange={(e) => setExamDate(e.target.value)}
+                className="exam-input"
+              />
             </div>
-          </div>
 
-          <div className="exam-input-group">
-            <label>EXAM HALL:</label>
-            <input
-              type="text"
-              value={examHall}
-              onChange={(e) => setExamHall(e.target.value)}
-              placeholder="e.g., Hall 1"
-              className="exam-input"
-            />
-          </div>
+            <div className="exam-input-group">
+              <label>SESSION:</label>
+              <div className="session-radio-group">
+                <label className="session-option">
+                  <input
+                    type="radio"
+                    value="AM"
+                    checked={session === 'AM'}
+                    onChange={() => setSession('AM')}
+                  />
+                  <span>AM</span>
+                </label>
+                <label className="session-option">
+                  <input
+                    type="radio"
+                    value="PM"
+                    checked={session === 'PM'}
+                    onChange={() => setSession('PM')}
+                  />
+                  <span>PM</span>
+                </label>
+              </div>
+            </div>
 
-          {/* Seating Configuration */}
-          <div className="exam-input-group">
-            <label>SEATING CONFIGURATION:</label>
-            <div className="seating-config-group">
-              <div className="config-input">
-                <label>Rows:</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={rows}
-                  onChange={(e) => setRows(parseInt(e.target.value) || 7)}
-                  className="config-number"
-                />
-              </div>
-              <div className="config-input">
-                <label>Columns:</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={columns}
-                  onChange={(e) => setColumns(parseInt(e.target.value) || 4)}
-                  className="config-number"
-                />
-              </div>
-              <div className="config-summary">
-                <span>Total Seats: {totalSeats} ({totalSeatsPerSide} per side)</span>
+            <div className="exam-input-group">
+              <label>EXAM HALL:</label>
+              <input
+                type="text"
+                value={examHall}
+                onChange={(e) => setExamHall(e.target.value)}
+                placeholder="e.g., Hall 1"
+                className="exam-input"
+              />
+            </div>
+
+            {/* Seating Configuration */}
+            <div className="exam-input-group config-group">
+              <label>SEATING CONFIGURATION:</label>
+              <div className="seating-config-group">
+                <div className="config-row">
+                  <div className="config-input">
+                    <label>Rows:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={rows}
+                      onChange={(e) => setRows(parseInt(e.target.value) || 7)}
+                      className="config-number"
+                    />
+                  </div>
+                  <div className="config-input">
+                    <label>Columns:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={columns}
+                      onChange={(e) => setColumns(parseInt(e.target.value) || 4)}
+                      className="config-number"
+                    />
+                  </div>
+                </div>
+                <div className="config-summary">
+                  <div className="config-summary-item">
+                    <span className="summary-label">Total Seats:</span>
+                    <span className="summary-value">{totalSeats}</span>
+                  </div>
+                  <div className="config-summary-item">
+                    <span className="summary-label">Per Side:</span>
+                    <span className="summary-value">{totalSeatsPerSide}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -854,7 +947,7 @@ function App() {
               <span><strong>Hall:</strong> {examHall || '_______________'}</span>
             </div>
             <div className="print-detail-column">
-             
+              <span><strong>Seating:</strong> {rows} rows × {columns} columns</span>
               <span><strong>Total Seats:</strong> {totalSeats}</span>
             </div>
           </div>
@@ -864,344 +957,427 @@ function App() {
 
       <div className="controls-container print-hide">
         <div className="current-course-form">
-          <h3>Add Course Students</h3>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Department:</label>
-              <input
-                type="text"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value.toUpperCase())}
-                placeholder="e.g., DS"
-                className="department-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Course Code:</label>
-              <input
-                type="text"
-                value={currentCourseCode}
-                onChange={(e) => setCurrentCourseCode(e.target.value)}
-                placeholder="Enter course code"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Course Title:</label>
-              <input
-                type="text"
-                value={currentCourseTitle}
-                onChange={(e) => setCurrentCourseTitle(e.target.value)}
-                placeholder="Enter course title"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Starting Register Number:</label>
-              <input
-                type="text"
-                value={startRegNo}
-                onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
-                placeholder="e.g., 24PGDT001"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Ending Register Number:</label>
-              <input
-                type="text"
-                value={endRegNo}
-                onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
-                placeholder="e.g., 24PGDT012"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Total Students:</label>
-              <div className="count-display">
-                <span className="count-value">{regCount > 0 ? regCount : '0'}</span>
-                <span className="count-label"> students</span>
+          <div className="form-header">
+            <h3>Add Course Students</h3>
+            <div className="form-stats">
+              <div className="stat-badge">
+                <span className="stat-label">Available:</span>
+                <span className="stat-value">{totalSeats - totalFilledSeats}</span>
               </div>
-              <div className="seat-availability">
-                <div className="availability-row">
-                  <span>Total Available:</span>
-                  <span className="availability-value">{totalSeats - totalFilledSeats} / {totalSeats}</span>
-                </div>
-                <div className="availability-row">
-                  <span>Left Side Available:</span>
-                  <span className="availability-value">{leftAvailableSeats} / {totalSeatsPerSide}</span>
-                </div>
-                <div className="availability-row">
-                  <span>Right Side Available:</span>
-                  <span className="availability-value">{rightAvailableSeats} / {totalSeatsPerSide}</span>
-                </div>
+              <div className="stat-badge">
+                <span className="stat-label">Students:</span>
+                <span className="stat-value">{totalStudents}</span>
               </div>
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Fill Which Side First:</label>
-              <div className="radio-group">
-                <label className="radio-option">
-                  <input
-                    type="radio"
-                    value="left"
-                    checked={fillSide === 'left'}
-                    onChange={() => setFillSide('left')}
-                  />
-                  <span className="radio-label">Left Side First</span>
-                </label>
-                <label className="radio-option">
-                  <input
-                    type="radio"
-                    value="right"
-                    checked={fillSide === 'right'}
-                    onChange={() => setFillSide('right')}
-                  />
-                  <span className="radio-label">Right Side First</span>
-                </label>
+          <div className="form-section">
+            <h4 className="section-title">Course Details</h4>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Department:</label>
+                <input
+                  type="text"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value.toUpperCase())}
+                  placeholder="e.g., DS"
+                  className="department-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Course Code:</label>
+                <input
+                  type="text"
+                  value={currentCourseCode}
+                  onChange={(e) => setCurrentCourseCode(e.target.value)}
+                  placeholder="Enter course code"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Course Title:</label>
+                <input
+                  type="text"
+                  value={currentCourseTitle}
+                  onChange={(e) => setCurrentCourseTitle(e.target.value)}
+                  placeholder="Enter course title"
+                />
               </div>
             </div>
+          </div>
 
-            <div className="form-group button-group">
-              <button type="button" className="btn save-btn" onClick={saveAndAddCourse}>
-                Save Course & Add to Seating
-              </button>
-              <button type="button" className="btn clear-btn" onClick={clearAllCourses}>
-                Clear All Courses
-              </button>
-              <button type="button" className="btn print-btn" onClick={handlePrint}>
-                Print/PDF
-              </button>
+          <div className="form-section">
+            <h4 className="section-title">Register Numbers</h4>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Starting Register Number:</label>
+                <input
+                  type="text"
+                  value={startRegNo}
+                  onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
+                  placeholder="e.g., 24PGDT001"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Ending Register Number:</label>
+                <input
+                  type="text"
+                  value={endRegNo}
+                  onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
+                  placeholder="e.g., 24PGDT012"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Total Students:</label>
+                <div className="count-display">
+                  <div className="count-circle">
+                    <span className="count-value">{regCount > 0 ? regCount : '0'}</span>
+                  </div>
+                  <span className="count-label">students</span>
+                </div>
+                <div className="seat-availability">
+                  <div className="availability-card">
+                    <div className="availability-header">Seat Availability</div>
+                    <div className="availability-items">
+                      <div className="availability-item left">
+                        <span className="availability-label">Left Side</span>
+                        <span className="availability-value">{leftAvailableSeats}/{totalSeatsPerSide}</span>
+                      </div>
+                      <div className="availability-item right">
+                        <span className="availability-label">Right Side</span>
+                        <span className="availability-value">{rightAvailableSeats}/{totalSeatsPerSide}</span>
+                      </div>
+                      <div className="availability-item total">
+                        <span className="availability-label">Total</span>
+                        <span className="availability-value">{totalSeats - totalFilledSeats}/{totalSeats}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h4 className="section-title">Seating Preferences</h4>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Fill Which Side First:</label>
+                <div className="radio-group">
+                  <label className="radio-option">
+                    <input
+                      type="radio"
+                      value="left"
+                      checked={fillSide === 'left'}
+                      onChange={() => setFillSide('left')}
+                    />
+                    <span className="radio-label">
+                      <span className="radio-icon">⬅️</span>
+                      Left Side First
+                    </span>
+                  </label>
+                  <label className="radio-option">
+                    <input
+                      type="radio"
+                      value="right"
+                      checked={fillSide === 'right'}
+                      onChange={() => setFillSide('right')}
+                    />
+                    <span className="radio-label">
+                      <span className="radio-icon">➡️</span>
+                      Right Side First
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group button-group">
+                <button type="button" className="btn save-btn" onClick={saveAndAddCourse}>
+                  <span className="btn-icon">✓</span>
+                  Save Course & Add to Seating
+                </button>
+                <button type="button" className="btn clear-btn" onClick={clearAllCourses}>
+                  <span className="btn-icon">🗑️</span>
+                  Clear All Courses
+                </button>
+                <button type="button" className="btn print-btn" onClick={handlePrint}>
+                  <span className="btn-icon">🖨️</span>
+                  Print/PDF
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="edit-instructions">
-            <p><strong>Feature:</strong> Click on any seat to edit the register number directly.</p>
+            <div className="instruction-icon">💡</div>
+            <div className="instruction-text">
+              <strong>Tip:</strong> Click on any seat to edit the register number directly. 
+              Editing a sequence seat will renumber all subsequent seats automatically.
+            </div>
           </div>
         </div>
 
         {courses.length > 0 && (
-          <div className="courses-list print-hide">
-            <h3>Added Courses ({courses.length})</h3>
-            <table className="courses-table">
-              <thead>
-                <tr>
-                  <th>Department</th>
-                  <th>Course Code</th>
-                  <th>Course Title</th>
-                  <th>Register Numbers</th>
-                  <th>Count</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {courses.map((course) => (
-                  <tr key={course.id}>
-                    <td>{course.department}</td>
-                    <td>{course.courseCode}</td>
-                    <td>{course.courseTitle}</td>
-                    <td>
-                      {course.startRegNo} to {course.endRegNo}
-                    </td>
-                    <td>{course.regCount}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn remove-btn"
-                        onClick={() => removeCourse(course.id)}
-                      >
-                        Remove
-                      </button>
-                    </td>
+          <div className="courses-list print-hide courses-section">
+            <div className="courses-header">
+              <h3>Added Courses ({courses.length})</h3>
+              <div className="courses-summary">
+                <span className="summary-text">Total Students: <strong>{totalStudents}</strong></span>
+              </div>
+            </div>
+            <div className="courses-table-container">
+              <table className="courses-table">
+                <thead>
+                  <tr>
+                    <th>Dept</th>
+                    <th>Code</th>
+                    <th>Title</th>
+                    <th>Reg Numbers</th>
+                    <th>Count</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan="4" className="total-label">
-                    <strong>Total Students:</strong>
-                  </td>
-                  <td className="total-count">
-                    <strong>{totalStudents}</strong>
-                  </td>
-                  <td></td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody>
+                  {courses.map((course) => (
+                    <tr key={course.id}>
+                      <td data-label="Dept">{course.department}</td>
+                      <td data-label="Code">{course.courseCode}</td>
+                      <td data-label="Title" className="course-title-cell">{course.courseTitle}</td>
+                      <td data-label="Reg Numbers">
+                        <div className="reg-range">
+                          <span className="reg-start">{course.startRegNo}</span>
+                          <span className="reg-to">to</span>
+                          <span className="reg-end">{course.endRegNo}</span>
+                        </div>
+                      </td>
+                      <td data-label="Count">
+                        <span className="count-badge">{course.regCount}</span>
+                      </td>
+                      <td data-label="Action">
+                        <button
+                          type="button"
+                          className="btn remove-btn"
+                          onClick={() => removeCourse(course.id)}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
 
-      <div className="seating-container">
+      <div className="seating-container seating-section">
+        <div className="seating-header">
+          <h3>Seating Arrangement</h3>
+          <div className="seating-stats">
+            <div className="seating-stat">
+              <span className="stat-label">Grid:</span>
+              <span className="stat-value">{rows}×{columns}</span>
+            </div>
+            <div className="seating-stat">
+              <span className="stat-label">Filled:</span>
+              <span className="stat-value">{totalFilledSeats}/{totalSeats}</span>
+            </div>
+          </div>
+        </div>
         <div className="seating-arrangement">
-          <table className="seating-table">
-            <thead>
-              <tr>
-                {Array.from({ length: columns }).map((_, colIndex) => (
-                  <th key={colIndex}>
-                    Column {colIndex + 1}<br />
-                    <small>{colIndex % 2 === 0 ? 'Top to Bottom' : 'Bottom to Top'}</small>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {seatingData.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {row.map((col, colIndex) => {
-                    return (
-                      <td key={colIndex} className="column-cell">
-                        <div className="seat-sides">
-                          {/* Left Side */}
-                          <div className="seat-side left-side">
-                            {editingCell && editingCell.row === rowIndex &&
-                              editingCell.col === colIndex && editingCell.side === 'left' ? (
-                              <div className="edit-input-container">
-                                <input
-                                  type="text"
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  className="edit-input"
-                                  autoFocus
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') saveEdit();
-                                    if (e.key === 'Escape') cancelEdit();
-                                  }}
-                                />
-                                <div className="edit-buttons">
-                                  <button className="edit-save-btn" onClick={saveEdit}>✓</button>
-                                  <button className="edit-cancel-btn" onClick={cancelEdit}>✗</button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div
-                                className={`reg-number print-remove-l clickable ${col.leftSequenceId ? 'sequence-seat' : ''}`}
-                                onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
-                                title={col.leftSequenceId ? "Part of auto-renumbering sequence" : ""}
-                              >
-                                {col.left || ' '}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Right Side */}
-                          <div className="seat-side right-side">
-                            {editingCell && editingCell.row === rowIndex &&
-                              editingCell.col === colIndex && editingCell.side === 'right' ? (
-                              <div className="edit-input-container">
-                                <input
-                                  type="text"
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  className="edit-input"
-                                  autoFocus
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') saveEdit();
-                                    if (e.key === 'Escape') cancelEdit();
-                                  }}
-                                />
-                                <div className="edit-buttons">
-                                  <button className="edit-save-btn" onClick={saveEdit}>✓</button>
-                                  <button className="edit-cancel-btn" onClick={cancelEdit}>✗</button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div
-                                className={`reg-number print-remove-r clickable ${col.rightSequenceId ? 'sequence-seat' : ''}`}
-                                onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
-                                title={col.rightSequenceId ? "Part of auto-renumbering sequence" : ""}
-                              >
-                                {col.right || ' '}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                    );
-                  })}
+          <div className="table-container">
+            <table className="seating-table">
+              <thead>
+                <tr>
+                  {Array.from({ length: columns }).map((_, colIndex) => (
+                    <th key={colIndex}>
+                      <div className="column-header">
+                        <span className="column-number">Col {colIndex + 1}</span>
+                        <span className="column-direction">
+                          {colIndex % 2 === 0 ? '↓ Top to Bottom' : '↑ Bottom to Top'}
+                        </span>
+                      </div>
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {seatingData.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {row.map((col, colIndex) => {
+                      return (
+                        <td key={colIndex} className="column-cell">
+                          <div className="seat-sides">
+                            {/* Left Side */}
+                            <div className="seat-side left-side">
+                              {editingCell && editingCell.row === rowIndex &&
+                                editingCell.col === colIndex && editingCell.side === 'left' ? (
+                                <div className="edit-input-container">
+                                  <input
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    className="edit-input"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                  />
+                                  <div className="edit-buttons">
+                                    <button className="edit-save-btn" onClick={saveEdit}>✓</button>
+                                    <button className="edit-cancel-btn" onClick={cancelEdit}>✗</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div
+                                  className={`reg-number print-remove-l clickable ${col.leftSequenceId ? 'sequence-seat' : ''}`}
+                                  onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
+                                  title={col.leftSequenceId ? "Part of auto-renumbering sequence" : ""}
+                                >
+                                  {col.left || <span className="empty-seat">Empty</span>}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Right Side */}
+                            <div className="seat-side right-side">
+                              {editingCell && editingCell.row === rowIndex &&
+                                editingCell.col === colIndex && editingCell.side === 'right' ? (
+                                <div className="edit-input-container">
+                                  <input
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    className="edit-input"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                  />
+                                  <div className="edit-buttons">
+                                    <button className="edit-save-btn" onClick={saveEdit}>✓</button>
+                                    <button className="edit-cancel-btn" onClick={cancelEdit}>✗</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div
+                                  className={`reg-number print-remove-r clickable ${col.rightSequenceId ? 'sequence-seat' : ''}`}
+                                  onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
+                                  title={col.rightSequenceId ? "Part of auto-renumbering sequence" : ""}
+                                >
+                                  {col.right || <span className="empty-seat">Empty</span>}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="legend print-hide">
-          <div className="legend-item">
-            <span className="legend-color left-color"></span>
-            <span>Left Side: {leftSidePosition.filledCount}/{totalSeatsPerSide} filled</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color right-color"></span>
-            <span>Right Side: {rightSidePosition.filledCount}/{totalSeatsPerSide} filled</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color total-color"></span>
-            <span>Total: {totalFilledSeats}/{totalSeats} seats filled</span>
-          </div>
-          <div className="legend-item">
-            <span className="legend-color sequence-color"></span>
-            <span>Auto-renumbering seats</span>
+          <div className="legend-grid">
+            <div className="legend-item">
+              <span className="legend-color left-color"></span>
+              <div className="legend-text">
+                <span className="legend-label">Left Side</span>
+                <span className="legend-value">{leftSidePosition.filledCount}/{totalSeatsPerSide}</span>
+              </div>
+            </div>
+            <div className="legend-item">
+              <span className="legend-color right-color"></span>
+              <div className="legend-text">
+                <span className="legend-label">Right Side</span>
+                <span className="legend-value">{rightSidePosition.filledCount}/{totalSeatsPerSide}</span>
+              </div>
+            </div>
+            <div className="legend-item">
+              <span className="legend-color total-color"></span>
+              <div className="legend-text">
+                <span className="legend-label">Total</span>
+                <span className="legend-value">{totalFilledSeats}/{totalSeats}</span>
+              </div>
+            </div>
+            <div className="legend-item">
+              <span className="legend-color sequence-color"></span>
+              <div className="legend-text">
+                <span className="legend-label">Auto-renumbering</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="footer-section">
-        <table className="summary-table">
-          <thead>
-            <tr>
-              <th>Department</th>
-              <th>Course Code</th>
-              <th>Course Title</th>
-              <th>Total Students</th>
-              <th>PRESENT</th>
-              <th>ABSENT</th>
-            </tr>
-          </thead>
-          <tbody>
-            {courses.length > 0 ? (
-              courses.map((course) => (
-                <tr key={course.id}>
-                  <td>{course.department}</td>
-                  <td>{course.courseCode}</td>
-                  <td>{course.courseTitle}</td>
-                  <td>{course.regCount}</td>
-                  <td>_______________</td>
-                  <td>_______________</td>
-                </tr>
-              ))
-            ) : (
+      <div className="footer-section summary-section">
+        <div className="summary-header">
+          <h3>Attendance Summary</h3>
+          <div className="summary-total">
+            Total Students: <strong>{totalStudents}</strong>
+          </div>
+        </div>
+        <div className="summary-table-container">
+          <table className="summary-table">
+            <thead>
               <tr>
-                <td>{department || '_______________'}</td>
-                <td>_______________</td>
-                <td>_______________</td>
-                <td>_______________</td>
-                <td>_______________</td>
-                <td>_______________</td>
+                <th>Department</th>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Total Students</th>
+                <th>PRESENT</th>
+                <th>ABSENT</th>
               </tr>
-            )}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan="3" className="footer-total-label">
-                <strong>TOTAL STUDENTS:</strong>
-              </td>
-              <td className="footer-total-count">
-                <strong>{totalStudents}</strong>
-              </td>
-              <td colSpan="2"></td>
-            </tr>
-          </tfoot>
-        </table>
+            </thead>
+            <tbody>
+              {courses.length > 0 ? (
+                courses.map((course) => (
+                  <tr key={course.id}>
+                    <td data-label="Department">{course.department}</td>
+                    <td data-label="Course Code">{course.courseCode}</td>
+                    <td data-label="Course Title">{course.courseTitle}</td>
+                    <td data-label="Total Students">{course.regCount}</td>
+                    <td data-label="PRESENT">_______________</td>
+                    <td data-label="ABSENT">_______________</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td data-label="Department">{department || '_______________'}</td>
+                  <td data-label="Course Code">_______________</td>
+                  <td data-label="Course Title">_______________</td>
+                  <td data-label="Total Students">_______________</td>
+                  <td data-label="PRESENT">_______________</td>
+                  <td data-label="ABSENT">_______________</td>
+                </tr>
+              )}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="3" className="footer-total-label">
+                  <strong>TOTAL STUDENTS:</strong>
+                </td>
+                <td className="footer-total-count">
+                  <strong>{totalStudents}</strong>
+                </td>
+                <td colSpan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
 
         <div className="signature-section">
           <div className="signature-line"></div>
-          <p>Name and Signature of the Hall Superintendent</p>
+          <p className="signature-label">Name and Signature of the Hall Superintendent</p>
         </div>
       </div>
     </div>
