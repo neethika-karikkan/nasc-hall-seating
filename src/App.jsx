@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
 
 function App() {
   // State for exam details
@@ -72,7 +71,6 @@ function App() {
 
   // Mobile menu state
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [activeSection, setActiveSection] = useState('seating'); // 'seating', 'courses', 'summary'
 
   // Reinitialize seating data when rows or columns change
   useEffect(() => {
@@ -756,74 +754,81 @@ function App() {
   const totalFilledSeats = leftSidePosition.filledCount + rightSidePosition.filledCount;
   const totalStudents = courses.reduce((sum, course) => sum + course.regCount, 0);
 
-  // Mobile menu items
-  const mobileMenuItems = [
-    { id: 'seating', label: 'Seating Arrangement', icon: '🪑' },
-    { id: 'courses', label: 'Courses', icon: '📚', count: courses.length },
-    { id: 'summary', label: 'Summary', icon: '📊' },
-    { id: 'add', label: 'Add Course', icon: '➕' }
-  ];
-
   return (
-    <div className="App">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-2 md:p-6">
       {/* Mobile Header */}
-      <div className="mobile-header print-hide">
-        <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+      <div className="print:hidden lg:hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-4 shadow-xl flex items-center justify-between">
+        <button 
+          onClick={toggleMobileMenu}
+          className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl hover:bg-white/30 transition-all duration-300"
+        >
           ☰
         </button>
-        <div className="mobile-title">
-          <h1>Hall Seating</h1>
-          <div className="mobile-subtitle">
+        <div className="text-center">
+          <h1 className="text-xl font-bold">Hall Seating</h1>
+          <p className="text-sm opacity-90">
             {rows}×{columns} Grid • {totalFilledSeats}/{totalSeats} Filled
-          </div>
+          </p>
         </div>
-        <button className="mobile-print-btn" onClick={handlePrint}>
+        <button 
+          onClick={handlePrint}
+          className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl hover:bg-white/30 transition-all duration-300"
+        >
           🖨️
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       {showMobileMenu && (
-        <div className="mobile-menu-overlay" onClick={() => setShowMobileMenu(false)}>
-          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-menu-header">
-              <h3>Navigation</h3>
-              <button className="close-menu-btn" onClick={() => setShowMobileMenu(false)}>✕</button>
+        <div 
+          className="print:hidden lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowMobileMenu(false)}
+        >
+          <div 
+            className="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-white shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-gray-800">Navigation</h3>
+              <button 
+                onClick={() => setShowMobileMenu(false)}
+                className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-xl"
+              >
+                ✕
+              </button>
             </div>
-            <div className="mobile-menu-items">
-              {mobileMenuItems.map(item => (
-                <button
-                  key={item.id}
-                  className={`mobile-menu-item ${activeSection === item.id ? 'active' : ''}`}
-                  onClick={() => {
-                    setActiveSection(item.id);
-                    setShowMobileMenu(false);
-                    if (item.id === 'add') {
-                      // Scroll to add course form
-                      document.querySelector('.current-course-form')?.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      // Scroll to the appropriate section
-                      document.querySelector(`.${item.id}-section`)?.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                >
-                  <span className="menu-item-icon">{item.icon}</span>
-                  <span className="menu-item-label">{item.label}</span>
-                  {item.count !== undefined && item.count > 0 && (
-                    <span className="menu-item-count">{item.count}</span>
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="mobile-menu-footer">
-              <div className="mobile-stats">
-                <div className="mobile-stat">
-                  <span className="stat-label">Total Students:</span>
-                  <span className="stat-value">{totalStudents}</span>
+            <div className="p-4 space-y-2">
+              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 hover:from-indigo-100 hover:to-purple-100 transition-all duration-300 flex items-center gap-4">
+                <span className="text-2xl">🪑</span>
+                <span className="font-medium text-gray-800">Seating Arrangement</span>
+              </button>
+              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100 hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="text-2xl">📚</span>
+                  <span className="font-medium text-gray-800">Courses</span>
                 </div>
-                <div className="mobile-stat">
-                  <span className="stat-label">Available Seats:</span>
-                  <span className="stat-value">{totalSeats - totalFilledSeats}</span>
+                <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  {courses.length}
+                </span>
+              </button>
+              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 hover:from-emerald-100 hover:to-green-100 transition-all duration-300 flex items-center gap-4">
+                <span className="text-2xl">📊</span>
+                <span className="font-medium text-gray-800">Summary</span>
+              </button>
+              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 hover:from-amber-100 hover:to-yellow-100 transition-all duration-300 flex items-center gap-4">
+                <span className="text-2xl">➕</span>
+                <span className="font-medium text-gray-800">Add Course</span>
+              </button>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+                  <span className="text-gray-600 font-medium">Total Students:</span>
+                  <span className="text-2xl font-bold text-gray-800">{totalStudents}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+                  <span className="text-gray-600 font-medium">Available Seats:</span>
+                  <span className="text-2xl font-bold text-gray-800">{totalSeats - totalFilledSeats}</span>
                 </div>
               </div>
             </div>
@@ -831,229 +836,129 @@ function App() {
         </div>
       )}
 
-      <div className="desktop-header print-hide">
-        <h1>NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</h1>
-        <p className="subtitle">
-          (Affiliated to Bharathiar University Accredited with "A+" Grade by NAAC,<br />
-          ISO 9001:2015 (QMS) & 21001:2018 (EDMS) Certified, Recognized by UGC with 2(f) &12(B),<br />
-          Under Star College Science by DBT. Approved by AICTE, Govt. of India).<br />
-          Nehru Gardens, Thirumalayampalayam, Coimbatore – 641 105, Tamil Nadu, India.<br />
-          E-mail: nascoffice@nehrucolleges.com. Ph: 0422-2480007 Web Site: www.nasccbe.ac.in
-        </p>
-      </div>
-
-      <hr className="divider print-hide" />
-
-      <div className="exam-info">
-        <h2 className="center-title">HALL SEATING ARRANGEMENT</h2>
-
-        <div className="exam-details-input print-hide">
-          <div className="exam-grid">
-            <div className="exam-input-group">
-              <label>DATE OF EXAMINATION:</label>
-              <input
-                type="date"
-                value={examDate}
-                onChange={(e) => setExamDate(e.target.value)}
-                className="exam-input"
-              />
-            </div>
-
-            <div className="exam-input-group">
-              <label>SESSION:</label>
-              <div className="session-radio-group">
-                <label className="session-option">
-                  <input
-                    type="radio"
-                    value="AM"
-                    checked={session === 'AM'}
-                    onChange={() => setSession('AM')}
-                  />
-                  <span>AM</span>
-                </label>
-                <label className="session-option">
-                  <input
-                    type="radio"
-                    value="PM"
-                    checked={session === 'PM'}
-                    onChange={() => setSession('PM')}
-                  />
-                  <span>PM</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="exam-input-group">
-              <label>EXAM HALL:</label>
-              <input
-                type="text"
-                value={examHall}
-                onChange={(e) => setExamHall(e.target.value)}
-                placeholder="e.g., Hall 1"
-                className="exam-input"
-              />
-            </div>
-
-            {/* Seating Configuration */}
-            <div className="exam-input-group config-group">
-              <label>SEATING CONFIGURATION:</label>
-              <div className="seating-config-group">
-                <div className="config-row">
-                  <div className="config-input">
-                    <label>Rows:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="20"
-                      value={rows}
-                      onChange={(e) => setRows(parseInt(e.target.value) || 7)}
-                      className="config-number"
-                    />
-                  </div>
-                  <div className="config-input">
-                    <label>Columns:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={columns}
-                      onChange={(e) => setColumns(parseInt(e.target.value) || 4)}
-                      className="config-number"
-                    />
-                  </div>
-                </div>
-                <div className="config-summary">
-                  <div className="config-summary-item">
-                    <span className="summary-label">Total Seats:</span>
-                    <span className="summary-value">{totalSeats}</span>
-                  </div>
-                  <div className="config-summary-item">
-                    <span className="summary-label">Per Side:</span>
-                    <span className="summary-value">{totalSeatsPerSide}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Main Container */}
+      <div className={`max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden mt-16 lg:mt-0 ${showMobileMenu ? 'blur-sm' : ''}`}>
+        {/* Desktop Header */}
+        <div className="print:hidden hidden lg:block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-8">
+          <h1 className="text-4xl font-bold text-center mb-4 drop-shadow-lg">NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</h1>
+          <p className="text-center text-lg opacity-90 leading-relaxed">
+            (Affiliated to Bharathiar University Accredited with "A+" Grade by NAAC,<br />
+            ISO 9001:2015 (QMS) & 21001:2018 (EDMS) Certified, Recognized by UGC with 2(f) &12(B),<br />
+            Under Star College Science by DBT. Approved by AICTE, Govt. of India).<br />
+            Nehru Gardens, Thirumalayampalayam, Coimbatore – 641 105, Tamil Nadu, India.<br />
+            E-mail: nascoffice@nehrucolleges.com. Ph: 0422-2480007 Web Site: www.nasccbe.ac.in
+          </p>
         </div>
 
-        {/* Print-only header */}
-        <div className="print-header">
-          <div className="print-college-name underline">NEHRU ARTS AND SCIENCE COLLEGE</div>
-          <div className="print-exam-details">
-            <div className="print-detail-column">
-              <span><strong>Date:</strong> {examDate || '_______________'}</span>
-              <span><strong>Session:</strong> {session},    </span>
-              <span><strong>Hall:</strong> {examHall || '_______________'}</span>
-            </div>
-            <div className="print-detail-column">
-              <span><strong>Seating:</strong> {rows} rows × {columns} columns</span>
-              <span><strong>Total Seats:</strong> {totalSeats}</span>
-            </div>
-          </div>
-          <div className="print-title">HALL SEATING ARRANGEMENT</div>
-        </div>
-      </div>
+        {/* Gradient Divider */}
+        <div className="print:hidden h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
 
-      <div className="controls-container print-hide">
-        <div className="current-course-form">
-          <div className="form-header">
-            <h3>Add Course Students</h3>
-            <div className="form-stats">
-              <div className="stat-badge">
-                <span className="stat-label">Available:</span>
-                <span className="stat-value">{totalSeats - totalFilledSeats}</span>
-              </div>
-              <div className="stat-badge">
-                <span className="stat-label">Students:</span>
-                <span className="stat-value">{totalStudents}</span>
-              </div>
-            </div>
-          </div>
+        {/* Exam Info Section */}
+        <div className="p-6 md:p-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8 relative">
+            HALL SEATING ARRANGEMENT
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+          </h2>
 
-          <div className="form-section">
-            <h4 className="section-title">Course Details</h4>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Department:</label>
+          {/* Exam Details Form */}
+          <div className="print:hidden bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-8 border border-gray-200 shadow-lg">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+              {/* Date */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">DATE OF EXAMINATION</label>
                 <input
-                  type="text"
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value.toUpperCase())}
-                  placeholder="e.g., DS"
-                  className="department-input"
+                  type="date"
+                  value={examDate}
+                  onChange={(e) => setExamDate(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300"
                 />
               </div>
 
-              <div className="form-group">
-                <label>Course Code:</label>
-                <input
-                  type="text"
-                  value={currentCourseCode}
-                  onChange={(e) => setCurrentCourseCode(e.target.value)}
-                  placeholder="Enter course code"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Course Title:</label>
-                <input
-                  type="text"
-                  value={currentCourseTitle}
-                  onChange={(e) => setCurrentCourseTitle(e.target.value)}
-                  placeholder="Enter course title"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="form-section">
-            <h4 className="section-title">Register Numbers</h4>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Starting Register Number:</label>
-                <input
-                  type="text"
-                  value={startRegNo}
-                  onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
-                  placeholder="e.g., 24PGDT001"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Ending Register Number:</label>
-                <input
-                  type="text"
-                  value={endRegNo}
-                  onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
-                  placeholder="e.g., 24PGDT012"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Total Students:</label>
-                <div className="count-display">
-                  <div className="count-circle">
-                    <span className="count-value">{regCount > 0 ? regCount : '0'}</span>
-                  </div>
-                  <span className="count-label">students</span>
+              {/* Session */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">SESSION</label>
+                <div className="flex space-x-4 pt-1">
+                  <label className="flex items-center space-x-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        value="AM"
+                        checked={session === 'AM'}
+                        onChange={() => setSession('AM')}
+                        className="sr-only"
+                      />
+                      <div className={`w-6 h-6 rounded-full border-2 ${session === 'AM' ? 'border-indigo-500 bg-indigo-500' : 'border-gray-400'} flex items-center justify-center transition-all duration-300 group-hover:border-indigo-400`}>
+                        {session === 'AM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      </div>
+                    </div>
+                    <span className="text-gray-700 font-medium group-hover:text-indigo-600 transition-colors duration-300">AM</span>
+                  </label>
+                  <label className="flex items-center space-x-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        value="PM"
+                        checked={session === 'PM'}
+                        onChange={() => setSession('PM')}
+                        className="sr-only"
+                      />
+                      <div className={`w-6 h-6 rounded-full border-2 ${session === 'PM' ? 'border-indigo-500 bg-indigo-500' : 'border-gray-400'} flex items-center justify-center transition-all duration-300 group-hover:border-indigo-400`}>
+                        {session === 'PM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      </div>
+                    </div>
+                    <span className="text-gray-700 font-medium group-hover:text-indigo-600 transition-colors duration-300">PM</span>
+                  </label>
                 </div>
-                <div className="seat-availability">
-                  <div className="availability-card">
-                    <div className="availability-header">Seat Availability</div>
-                    <div className="availability-items">
-                      <div className="availability-item left">
-                        <span className="availability-label">Left Side</span>
-                        <span className="availability-value">{leftAvailableSeats}/{totalSeatsPerSide}</span>
-                      </div>
-                      <div className="availability-item right">
-                        <span className="availability-label">Right Side</span>
-                        <span className="availability-value">{rightAvailableSeats}/{totalSeatsPerSide}</span>
-                      </div>
-                      <div className="availability-item total">
-                        <span className="availability-label">Total</span>
-                        <span className="availability-value">{totalSeats - totalFilledSeats}/{totalSeats}</span>
-                      </div>
+              </div>
+
+              {/* Hall */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">EXAM HALL</label>
+                <input
+                  type="text"
+                  value={examHall}
+                  onChange={(e) => setExamHall(e.target.value)}
+                  placeholder="e.g., Hall 1"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 placeholder-gray-400"
+                />
+              </div>
+
+              {/* Seating Configuration */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">SEATING CONFIGURATION</label>
+                <div className="bg-white rounded-xl p-4 border-2 border-gray-300">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-gray-600">Rows</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={rows}
+                        onChange={(e) => setRows(parseInt(e.target.value) || 7)}
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-center font-bold text-gray-800"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-gray-600">Columns</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={columns}
+                        onChange={(e) => setColumns(parseInt(e.target.value) || 4)}
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-center font-bold text-gray-800"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-3 rounded-lg">
+                      <p className="text-xs text-indigo-600 font-medium">Total Seats</p>
+                      <p className="text-2xl font-bold text-indigo-700">{totalSeats}</p>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg">
+                      <p className="text-xs text-purple-600 font-medium">Per Side</p>
+                      <p className="text-2xl font-bold text-purple-700">{totalSeatsPerSide}</p>
                     </div>
                   </div>
                 </div>
@@ -1061,325 +966,606 @@ function App() {
             </div>
           </div>
 
-          <div className="form-section">
-            <h4 className="section-title">Seating Preferences</h4>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Fill Which Side First:</label>
-                <div className="radio-group">
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      value="left"
-                      checked={fillSide === 'left'}
-                      onChange={() => setFillSide('left')}
-                    />
-                    <span className="radio-label">
-                      <span className="radio-icon">⬅️</span>
-                      Left Side First
-                    </span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      value="right"
-                      checked={fillSide === 'right'}
-                      onChange={() => setFillSide('right')}
-                    />
-                    <span className="radio-label">
-                      <span className="radio-icon">➡️</span>
-                      Right Side First
-                    </span>
-                  </label>
+          {/* Print Header */}
+          <div className="hidden print:block text-center mb-8">
+            <div className="text-2xl font-bold border-b-2 border-black pb-2 mb-4">NEHRU ARTS AND SCIENCE COLLEGE</div>
+            <div className="space-y-2 mb-6">
+              <div className="flex justify-center space-x-8">
+                <span><strong>Date:</strong> {examDate || '_______________'}</span>
+                <span><strong>Session:</strong> {session}</span>
+                <span><strong>Hall:</strong> {examHall || '_______________'}</span>
+              </div>
+              <div className="flex justify-center space-x-8">
+                <span><strong>Seating:</strong> {rows} rows × {columns} columns</span>
+                <span><strong>Total Seats:</strong> {totalSeats}</span>
+              </div>
+            </div>
+            <div className="text-xl font-bold underline">HALL SEATING ARRANGEMENT</div>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 md:p-8">
+          {/* Left Column - Course Form */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Course Form Card */}
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-xl">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-200">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Add Course Students</h3>
+                <div className="flex space-x-4">
+                  <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 px-4 py-2 rounded-xl border border-emerald-200">
+                    <p className="text-xs text-emerald-600 font-medium">Available Seats</p>
+                    <p className="text-xl font-bold text-emerald-700">{totalSeats - totalFilledSeats}</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-2 rounded-xl border border-blue-200">
+                    <p className="text-xs text-blue-600 font-medium">Total Students</p>
+                    <p className="text-xl font-bold text-blue-700">{totalStudents}</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="form-group button-group">
-                <button type="button" className="btn save-btn" onClick={saveAndAddCourse}>
-                  <span className="btn-icon">✓</span>
-                  Save Course & Add to Seating
-                </button>
-                <button type="button" className="btn clear-btn" onClick={clearAllCourses}>
-                  <span className="btn-icon">🗑️</span>
-                  Clear All Courses
-                </button>
-                <button type="button" className="btn print-btn" onClick={handlePrint}>
-                  <span className="btn-icon">🖨️</span>
-                  Print/PDF
-                </button>
+              {/* Course Details */}
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                  Course Details
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Department</label>
+                    <input
+                      type="text"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value.toUpperCase())}
+                      placeholder="e.g., DS"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 uppercase placeholder-gray-400"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Course Code</label>
+                    <input
+                      type="text"
+                      value={currentCourseCode}
+                      onChange={(e) => setCurrentCourseCode(e.target.value)}
+                      placeholder="Enter course code"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 placeholder-gray-400"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Course Title</label>
+                    <input
+                      type="text"
+                      value={currentCourseTitle}
+                      onChange={(e) => setCurrentCourseTitle(e.target.value)}
+                      placeholder="Enter course title"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 placeholder-gray-400"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="edit-instructions">
-            <div className="instruction-icon">💡</div>
-            <div className="instruction-text">
-              <strong>Tip:</strong> Click on any seat to edit the register number directly. 
-              Editing a sequence seat will renumber all subsequent seats automatically.
-            </div>
-          </div>
-        </div>
-
-        {courses.length > 0 && (
-          <div className="courses-list print-hide courses-section">
-            <div className="courses-header">
-              <h3>Added Courses ({courses.length})</h3>
-              <div className="courses-summary">
-                <span className="summary-text">Total Students: <strong>{totalStudents}</strong></span>
-              </div>
-            </div>
-            <div className="courses-table-container">
-              <table className="courses-table">
-                <thead>
-                  <tr>
-                    <th>Dept</th>
-                    <th>Code</th>
-                    <th>Title</th>
-                    <th>Reg Numbers</th>
-                    <th>Count</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {courses.map((course) => (
-                    <tr key={course.id}>
-                      <td data-label="Dept">{course.department}</td>
-                      <td data-label="Code">{course.courseCode}</td>
-                      <td data-label="Title" className="course-title-cell">{course.courseTitle}</td>
-                      <td data-label="Reg Numbers">
-                        <div className="reg-range">
-                          <span className="reg-start">{course.startRegNo}</span>
-                          <span className="reg-to">to</span>
-                          <span className="reg-end">{course.endRegNo}</span>
+              {/* Register Numbers */}
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                  Register Numbers
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Starting Register No.</label>
+                    <input
+                      type="text"
+                      value={startRegNo}
+                      onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
+                      placeholder="e.g., 24PGDT001"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-200 outline-none transition-all duration-300 uppercase placeholder-gray-400 font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Ending Register No.</label>
+                    <input
+                      type="text"
+                      value={endRegNo}
+                      onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
+                      placeholder="e.g., 24PGDT012"
+                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-200 outline-none transition-all duration-300 uppercase placeholder-gray-400 font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Total Students</label>
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="relative w-24 h-24 mb-3">
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-20"></div>
+                        <div className="absolute inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                          <span className="text-3xl font-bold text-white">{regCount > 0 ? regCount : '0'}</span>
                         </div>
-                      </td>
-                      <td data-label="Count">
-                        <span className="count-badge">{course.regCount}</span>
-                      </td>
-                      <td data-label="Action">
-                        <button
-                          type="button"
-                          className="btn remove-btn"
-                          onClick={() => removeCourse(course.id)}
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="seating-container seating-section">
-        <div className="seating-header">
-          <h3>Seating Arrangement</h3>
-          <div className="seating-stats">
-            <div className="seating-stat">
-              <span className="stat-label">Grid:</span>
-              <span className="stat-value">{rows}×{columns}</span>
-            </div>
-            <div className="seating-stat">
-              <span className="stat-label">Filled:</span>
-              <span className="stat-value">{totalFilledSeats}/{totalSeats}</span>
-            </div>
-          </div>
-        </div>
-        <div className="seating-arrangement">
-          <div className="table-container">
-            <table className="seating-table">
-              <thead>
-                <tr>
-                  {Array.from({ length: columns }).map((_, colIndex) => (
-                    <th key={colIndex}>
-                      <div className="column-header">
-                        <span className="column-number">Col {colIndex + 1}</span>
-                        <span className="column-direction">
-                          {colIndex % 2 === 0 ? '↓ Top to Bottom' : '↑ Bottom to Top'}
-                        </span>
                       </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {seatingData.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {row.map((col, colIndex) => {
-                      return (
-                        <td key={colIndex} className="column-cell">
-                          <div className="seat-sides">
-                            {/* Left Side */}
-                            <div className="seat-side left-side">
-                              {editingCell && editingCell.row === rowIndex &&
-                                editingCell.col === colIndex && editingCell.side === 'left' ? (
-                                <div className="edit-input-container">
-                                  <input
-                                    type="text"
-                                    value={editValue}
-                                    onChange={(e) => setEditValue(e.target.value)}
-                                    className="edit-input"
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') saveEdit();
-                                      if (e.key === 'Escape') cancelEdit();
-                                    }}
-                                  />
-                                  <div className="edit-buttons">
-                                    <button className="edit-save-btn" onClick={saveEdit}>✓</button>
-                                    <button className="edit-cancel-btn" onClick={cancelEdit}>✗</button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  className={`reg-number print-remove-l clickable ${col.leftSequenceId ? 'sequence-seat' : ''}`}
-                                  onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
-                                  title={col.leftSequenceId ? "Part of auto-renumbering sequence" : ""}
-                                >
-                                  {col.left || <span className="empty-seat">Empty</span>}
-                                </div>
-                              )}
-                            </div>
+                      <span className="text-sm text-gray-600 font-medium">students</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                            {/* Right Side */}
-                            <div className="seat-side right-side">
-                              {editingCell && editingCell.row === rowIndex &&
-                                editingCell.col === colIndex && editingCell.side === 'right' ? (
-                                <div className="edit-input-container">
-                                  <input
-                                    type="text"
-                                    value={editValue}
-                                    onChange={(e) => setEditValue(e.target.value)}
-                                    className="edit-input"
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') saveEdit();
-                                      if (e.key === 'Escape') cancelEdit();
-                                    }}
-                                  />
-                                  <div className="edit-buttons">
-                                    <button className="edit-save-btn" onClick={saveEdit}>✓</button>
-                                    <button className="edit-cancel-btn" onClick={cancelEdit}>✗</button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  className={`reg-number print-remove-r clickable ${col.rightSequenceId ? 'sequence-seat' : ''}`}
-                                  onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
-                                  title={col.rightSequenceId ? "Part of auto-renumbering sequence" : ""}
-                                >
-                                  {col.right || <span className="empty-seat">Empty</span>}
-                                </div>
-                              )}
-                            </div>
+              {/* Seat Availability */}
+              <div className="mb-8">
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                  <h5 className="text-lg font-semibold text-gray-800 mb-4 text-center">Seat Availability</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-xl border-l-4 border-indigo-500">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-indigo-700">Left Side</span>
+                        <span className="text-xl font-bold text-indigo-800">{leftAvailableSeats}/{totalSeatsPerSide}</span>
+                      </div>
+                      <div className="mt-2 w-full bg-indigo-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${(leftAvailableSeats/totalSeatsPerSide)*100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border-l-4 border-purple-500">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-purple-700">Right Side</span>
+                        <span className="text-xl font-bold text-purple-800">{rightAvailableSeats}/{totalSeatsPerSide}</span>
+                      </div>
+                      <div className="mt-2 w-full bg-purple-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${(rightAvailableSeats/totalSeatsPerSide)*100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-xl border-l-4 border-gray-600">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-700">Total</span>
+                        <span className="text-xl font-bold text-gray-800">{totalSeats - totalFilledSeats}/{totalSeats}</span>
+                      </div>
+                      <div className="mt-2 w-full bg-gray-300 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-gray-600 to-gray-700 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${((totalSeats - totalFilledSeats)/totalSeats)*100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seating Preferences */}
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                  Seating Preferences
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <label className="block text-sm font-medium text-gray-700">Fill Which Side First</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <label className={`relative cursor-pointer ${fillSide === 'left' ? 'ring-4 ring-indigo-200' : ''}`}>
+                        <input
+                          type="radio"
+                          value="left"
+                          checked={fillSide === 'left'}
+                          onChange={() => setFillSide('left')}
+                          className="sr-only"
+                        />
+                        <div className={`p-4 rounded-xl border-2 ${fillSide === 'left' ? 'border-indigo-500 bg-gradient-to-r from-indigo-50 to-indigo-100' : 'border-gray-300 bg-white hover:border-indigo-300'} transition-all duration-300`}>
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-2xl">⬅️</span>
+                            <span className="font-medium text-gray-700">Left Side</span>
                           </div>
+                        </div>
+                      </label>
+                      <label className={`relative cursor-pointer ${fillSide === 'right' ? 'ring-4 ring-purple-200' : ''}`}>
+                        <input
+                          type="radio"
+                          value="right"
+                          checked={fillSide === 'right'}
+                          onChange={() => setFillSide('right')}
+                          className="sr-only"
+                        />
+                        <div className={`p-4 rounded-xl border-2 ${fillSide === 'right' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-300 bg-white hover:border-purple-300'} transition-all duration-300`}>
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-2xl">➡️</span>
+                            <span className="font-medium text-gray-700">Right Side</span>
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex flex-col space-y-4">
+                    <button
+                      onClick={saveAndAddCourse}
+                      className="px-6 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-bold text-lg hover:from-emerald-600 hover:to-emerald-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+                    >
+                      <span className="text-xl">✓</span>
+                      Save Course & Add to Seating
+                    </button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={clearAllCourses}
+                        className="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                      >
+                        <span>🗑️</span>
+                        Clear All
+                      </button>
+                      <button
+                        onClick={handlePrint}
+                        className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold hover:from-blue-600 hover:to-blue-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                      >
+                        <span>🖨️</span>
+                        Print/PDF
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tip */}
+              <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-5 border border-amber-200">
+                <div className="flex items-start gap-4">
+                  <div className="text-3xl">💡</div>
+                  <div>
+                    <p className="font-bold text-amber-800 mb-1">Tip:</p>
+                    <p className="text-amber-700">
+                      Click on any seat to edit the register number directly. 
+                      Editing a sequence seat will renumber all subsequent seats automatically.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Courses List */}
+            {courses.length > 0 && (
+              <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-6 border border-blue-200 shadow-xl">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-blue-200">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Added Courses ({courses.length})</h3>
+                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl">
+                    <p className="text-lg font-bold">Total Students: {totalStudents}</p>
+                  </div>
+                </div>
+                <div className="overflow-x-auto rounded-xl border border-blue-200">
+                  <table className="min-w-full divide-y divide-blue-200">
+                    <thead className="bg-gradient-to-r from-blue-50 to-blue-100">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Dept</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Code</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Title</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Register Numbers</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Count</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-blue-100">
+                      {courses.map((course) => (
+                        <tr key={course.id} className="hover:bg-blue-50 transition-colors duration-200">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-800">
+                              {course.department}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.courseCode}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{course.courseTitle}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="font-mono text-sm">
+                              <div className="text-gray-900 font-bold">{course.startRegNo}</div>
+                              <div className="text-gray-500 text-xs text-center">to</div>
+                              <div className="text-gray-900 font-bold">{course.endRegNo}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                              {course.regCount}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => removeCourse(course.id)}
+                              className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-bold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-0.5 transition-all duration-300 shadow hover:shadow-lg"
+                            >
+                              Remove
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Seating Arrangement */}
+          <div className="space-y-8">
+            {/* Seating Stats Card */}
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-xl">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                <h3 className="text-2xl font-bold text-gray-800">Seating Arrangement</h3>
+                <div className="flex space-x-3">
+                  <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 px-3 py-2 rounded-lg">
+                    <p className="text-xs text-indigo-600 font-medium">Grid</p>
+                    <p className="text-lg font-bold text-indigo-700">{rows}×{columns}</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-2 rounded-lg">
+                    <p className="text-xs text-purple-600 font-medium">Filled</p>
+                    <p className="text-lg font-bold text-purple-700">{totalFilledSeats}/{totalSeats}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seating Table */}
+              <div className="overflow-x-auto rounded-xl border-2 border-gray-300">
+                <table className="min-w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
+                      {Array.from({ length: columns }).map((_, colIndex) => (
+                        <th key={colIndex} className="px-4 py-3 text-center border-r border-gray-300 last:border-r-0">
+                          <div className="flex flex-col items-center">
+                            <span className="font-bold text-gray-800">Col {colIndex + 1}</span>
+                            <span className={`text-xs ${colIndex % 2 === 0 ? 'text-indigo-600' : 'text-purple-600'} font-medium`}>
+                              {colIndex % 2 === 0 ? '↓ Top to Bottom' : '↑ Bottom to Top'}
+                            </span>
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {seatingData.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.map((col, colIndex) => (
+                          <td key={colIndex} className="border border-gray-300 p-2">
+                            <div className="flex h-24">
+                              {/* Left Side */}
+                              <div className="flex-1 flex items-center justify-center border-r border-gray-300 bg-gradient-to-br from-indigo-50 to-indigo-100">
+                                {editingCell && editingCell.row === rowIndex &&
+                                  editingCell.col === colIndex && editingCell.side === 'left' ? (
+                                  <div className="w-full h-full p-2">
+                                    <input
+                                      type="text"
+                                      value={editValue}
+                                      onChange={(e) => setEditValue(e.target.value)}
+                                      className="w-full h-full px-2 text-sm border-2 border-indigo-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 text-center uppercase font-mono"
+                                      autoFocus
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') saveEdit();
+                                        if (e.key === 'Escape') cancelEdit();
+                                      }}
+                                    />
+                                    <div className="flex gap-2 mt-2">
+                                      <button
+                                        onClick={saveEdit}
+                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm rounded-lg font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300"
+                                      >
+                                        ✓
+                                      </button>
+                                      <button
+                                        onClick={cancelEdit}
+                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm rounded-lg font-bold hover:from-red-600 hover:to-red-700 transition-all duration-300"
+                                      >
+                                        ✗
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    className={`w-full h-full flex items-center justify-center p-2 cursor-pointer hover:bg-white/50 rounded-lg transition-all duration-300 ${col.leftSequenceId ? 'bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200' : ''}`}
+                                    onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
+                                    title={col.leftSequenceId ? "Part of auto-renumbering sequence" : ""}
+                                  >
+                                    {col.left ? (
+                                      <span className="text-sm font-mono font-bold text-gray-800 text-center break-all">
+                                        {col.left}
+                                      </span>
+                                    ) : (
+                                      <span className="text-xs text-gray-400 italic">Empty</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Right Side */}
+                              <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100">
+                                {editingCell && editingCell.row === rowIndex &&
+                                  editingCell.col === colIndex && editingCell.side === 'right' ? (
+                                  <div className="w-full h-full p-2">
+                                    <input
+                                      type="text"
+                                      value={editValue}
+                                      onChange={(e) => setEditValue(e.target.value)}
+                                      className="w-full h-full px-2 text-sm border-2 border-purple-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 text-center uppercase font-mono"
+                                      autoFocus
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') saveEdit();
+                                        if (e.key === 'Escape') cancelEdit();
+                                      }}
+                                    />
+                                    <div className="flex gap-2 mt-2">
+                                      <button
+                                        onClick={saveEdit}
+                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm rounded-lg font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300"
+                                      >
+                                        ✓
+                                      </button>
+                                      <button
+                                        onClick={cancelEdit}
+                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm rounded-lg font-bold hover:from-red-600 hover:to-red-700 transition-all duration-300"
+                                      >
+                                        ✗
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    className={`w-full h-full flex items-center justify-center p-2 cursor-pointer hover:bg-white/50 rounded-lg transition-all duration-300 ${col.rightSequenceId ? 'bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200' : ''}`}
+                                    onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
+                                    title={col.rightSequenceId ? "Part of auto-renumbering sequence" : ""}
+                                  >
+                                    {col.right ? (
+                                      <span className="text-sm font-mono font-bold text-gray-800 text-center break-all">
+                                        {col.right}
+                                      </span>
+                                    ) : (
+                                      <span className="text-xs text-gray-400 italic">Empty</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Legend */}
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-xl border border-indigo-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-indigo-700">Left Side</p>
+                      <p className="text-lg font-bold text-indigo-800">{leftSidePosition.filledCount}/{totalSeatsPerSide}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-purple-700">Right Side</p>
+                      <p className="text-lg font-bold text-purple-800">{rightSidePosition.filledCount}/{totalSeatsPerSide}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-xl border border-gray-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-700">Total</p>
+                      <p className="text-lg font-bold text-gray-800">{totalFilledSeats}/{totalSeats}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-xl border border-amber-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full border border-amber-600 border-dashed"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-amber-700">Auto-renumbering</p>
+                      <p className="text-xs text-amber-600">Click to edit sequence</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Attendance Summary */}
+            <div className="bg-gradient-to-br from-white to-emerald-50 rounded-2xl p-6 border border-emerald-200 shadow-xl">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-emerald-200">
+                <h3 className="text-2xl font-bold text-gray-800">Attendance Summary</h3>
+                <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-xl">
+                  <p className="text-lg font-bold">Students: {totalStudents}</p>
+                </div>
+              </div>
+              <div className="overflow-x-auto rounded-xl border border-emerald-200">
+                <table className="min-w-full">
+                  <thead className="bg-gradient-to-r from-emerald-50 to-emerald-100">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Dept</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Code</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Title</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Total</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">PRESENT</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">ABSENT</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-emerald-100">
+                    {courses.length > 0 ? (
+                      courses.map((course) => (
+                        <tr key={course.id} className="hover:bg-emerald-50 transition-colors duration-200">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-emerald-800">{course.department}</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{course.courseCode}</td>
+                          <td className="px-4 py-3 text-sm text-gray-700 truncate max-w-xs">{course.courseTitle}</td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+                              {course.regCount}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">_______________</td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">_______________</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                          No courses added yet. Add a course to see the summary.
                         </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                      </tr>
+                    )}
+                  </tbody>
+                  {courses.length > 0 && (
+                    <tfoot className="bg-gradient-to-r from-emerald-100 to-emerald-200">
+                      <tr>
+                        <td colSpan="3" className="px-4 py-4 text-right text-sm font-bold text-emerald-800">
+                          TOTAL STUDENTS:
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-lg font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+                            {totalStudents}
+                          </span>
+                        </td>
+                        <td colSpan="2"></td>
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              </div>
 
-        <div className="legend print-hide">
-          <div className="legend-grid">
-            <div className="legend-item">
-              <span className="legend-color left-color"></span>
-              <div className="legend-text">
-                <span className="legend-label">Left Side</span>
-                <span className="legend-value">{leftSidePosition.filledCount}/{totalSeatsPerSide}</span>
-              </div>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color right-color"></span>
-              <div className="legend-text">
-                <span className="legend-label">Right Side</span>
-                <span className="legend-value">{rightSidePosition.filledCount}/{totalSeatsPerSide}</span>
-              </div>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color total-color"></span>
-              <div className="legend-text">
-                <span className="legend-label">Total</span>
-                <span className="legend-value">{totalFilledSeats}/{totalSeats}</span>
-              </div>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color sequence-color"></span>
-              <div className="legend-text">
-                <span className="legend-label">Auto-renumbering</span>
+              {/* Signature Section */}
+              <div className="mt-8 pt-6 border-t border-emerald-200">
+                <div className="relative">
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent"></div>
+                  <div className="h-0.5 bg-emerald-600 mt-4"></div>
+                </div>
+                <p className="text-center text-sm text-gray-600 mt-4 font-medium">
+                  Name and Signature of the Hall Superintendent
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="footer-section summary-section">
-        <div className="summary-header">
-          <h3>Attendance Summary</h3>
-          <div className="summary-total">
-            Total Students: <strong>{totalStudents}</strong>
-          </div>
-        </div>
-        <div className="summary-table-container">
-          <table className="summary-table">
-            <thead>
-              <tr>
-                <th>Department</th>
-                <th>Course Code</th>
-                <th>Course Title</th>
-                <th>Total Students</th>
-                <th>PRESENT</th>
-                <th>ABSENT</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.length > 0 ? (
-                courses.map((course) => (
-                  <tr key={course.id}>
-                    <td data-label="Department">{course.department}</td>
-                    <td data-label="Course Code">{course.courseCode}</td>
-                    <td data-label="Course Title">{course.courseTitle}</td>
-                    <td data-label="Total Students">{course.regCount}</td>
-                    <td data-label="PRESENT">_______________</td>
-                    <td data-label="ABSENT">_______________</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td data-label="Department">{department || '_______________'}</td>
-                  <td data-label="Course Code">_______________</td>
-                  <td data-label="Course Title">_______________</td>
-                  <td data-label="Total Students">_______________</td>
-                  <td data-label="PRESENT">_______________</td>
-                  <td data-label="ABSENT">_______________</td>
-                </tr>
-              )}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan="3" className="footer-total-label">
-                  <strong>TOTAL STUDENTS:</strong>
-                </td>
-                <td className="footer-total-count">
-                  <strong>{totalStudents}</strong>
-                </td>
-                <td colSpan="2"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div className="signature-section">
-          <div className="signature-line"></div>
-          <p className="signature-label">Name and Signature of the Hall Superintendent</p>
-        </div>
-      </div>
+      {/* Print Styles */}
+      <style jsx>{`
+        @media print {
+          .print\\:hidden {
+            display: none !important;
+          }
+          body {
+            background: white !important;
+          }
+          .bg-gradient-to-br, .shadow-2xl, .border, .rounded-3xl {
+            box-shadow: none !important;
+            border: 1px solid #000 !important;
+            border-radius: 0 !important;
+            background: white !important;
+          }
+          table {
+            border-collapse: collapse;
+            width: 100%;
+          }
+          th, td {
+            border: 1px solid #000 !important;
+            padding: 8px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
