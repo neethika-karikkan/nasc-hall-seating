@@ -763,7 +763,7 @@ function App() {
       <hr className="divider print-hide" />
 
       <div className="exam-info">
-        <h2 className="center-title">HALL SEATING ARRANGEMENT</h2>
+        <h2 className="center-title">NASC - HALL SEATING ARRANGEMENT</h2>
 
         <div className="exam-details-input print-hide">
           <div className="exam-input-group">
