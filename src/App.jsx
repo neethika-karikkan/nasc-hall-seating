@@ -69,9 +69,6 @@ function App() {
   // State to track sequences
   const [sequenceCounter, setSequenceCounter] = useState(1);
 
-  // Mobile menu state
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-
   // Reinitialize seating data when rows or columns change
   useEffect(() => {
     const newSeatingData = initializeSeatingData();
@@ -645,10 +642,7 @@ function App() {
       const newPrefix = extractPrefix(editValue);
       const newNumber = extractNumber(editValue);
 
-      if (!newPrefix || newNumber === null) {
-        alert('Invalid register number format');
-        return;
-      }
+      
 
       // If this seat is part of a sequence, renumber the entire sequence
       if (sequenceId !== null && sequenceIndex !== null) {
@@ -738,394 +732,470 @@ function App() {
     setEditValue('');
   };
 
-  // Generate PDF for printing
-  const handlePrint = () => {
-    window.print();
-  };
-
-  // Toggle mobile menu
-  const toggleMobileMenu = () => {
-    setShowMobileMenu(!showMobileMenu);
-  };
-
   // Calculate available seats
   const leftAvailableSeats = totalSeatsPerSide - leftSidePosition.filledCount;
   const rightAvailableSeats = totalSeatsPerSide - rightSidePosition.filledCount;
   const totalFilledSeats = leftSidePosition.filledCount + rightSidePosition.filledCount;
   const totalStudents = courses.reduce((sum, course) => sum + course.regCount, 0);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-2 md:p-6">
-      {/* Mobile Header */}
-      <div className="print:hidden lg:hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-4 shadow-xl flex items-center justify-between">
-        <button 
-          onClick={toggleMobileMenu}
-          className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl hover:bg-white/30 transition-all duration-300"
-        >
-          ☰
-        </button>
-        <div className="text-center">
-          <h1 className="text-xl font-bold">Hall Seating</h1>
-          <p className="text-sm opacity-90">
-            {rows}×{columns} Grid • {totalFilledSeats}/{totalSeats} Filled
-          </p>
-        </div>
-        <button 
-          onClick={handlePrint}
-          className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl hover:bg-white/30 transition-all duration-300"
-        >
-          🖨️
-        </button>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      {showMobileMenu && (
-        <div 
-          className="print:hidden lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
-          onClick={() => setShowMobileMenu(false)}
-        >
-          <div 
-            className="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-white shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-2xl font-bold text-gray-800">Navigation</h3>
-              <button 
-                onClick={() => setShowMobileMenu(false)}
-                className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-xl"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-4 space-y-2">
-              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 hover:from-indigo-100 hover:to-purple-100 transition-all duration-300 flex items-center gap-4">
-                <span className="text-2xl">🪑</span>
-                <span className="font-medium text-gray-800">Seating Arrangement</span>
-              </button>
-              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100 hover:from-blue-100 hover:to-cyan-100 transition-all duration-300 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <span className="text-2xl">📚</span>
-                  <span className="font-medium text-gray-800">Courses</span>
-                </div>
-                <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                  {courses.length}
-                </span>
-              </button>
-              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 hover:from-emerald-100 hover:to-green-100 transition-all duration-300 flex items-center gap-4">
-                <span className="text-2xl">📊</span>
-                <span className="font-medium text-gray-800">Summary</span>
-              </button>
-              <button className="w-full p-4 text-left rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 hover:from-amber-100 hover:to-yellow-100 transition-all duration-300 flex items-center gap-4">
-                <span className="text-2xl">➕</span>
-                <span className="font-medium text-gray-800">Add Course</span>
-              </button>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
-                  <span className="text-gray-600 font-medium">Total Students:</span>
-                  <span className="text-2xl font-bold text-gray-800">{totalStudents}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
-                  <span className="text-gray-600 font-medium">Available Seats:</span>
-                  <span className="text-2xl font-bold text-gray-800">{totalSeats - totalFilledSeats}</span>
-                </div>
-              </div>
+  // Handle print with landscape orientation
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Hall Seating Arrangement</title>
+        <style>
+          @page {
+            size: landscape;
+            margin: 0.5cm;
+          }
+          
+          body {
+            font-family: 'Times New Roman', serif;
+            margin: 0;
+            padding: 0;
+          }
+          
+          .print-container {
+            width: 100%;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          
+          .college-name {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-decoration: underline;
+          }
+          
+          .title {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 15px;
+          }
+          
+          .exam-details {
+            font-size: 11pt;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+          }
+          
+          .exam-details span {
+            margin-right: 30px;
+          }
+          
+          .seating-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 9pt;
+          }
+          
+          .seating-table th {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+            font-weight: bold;
+          }
+          
+          .seating-table td {
+            border: 1px solid #000;
+            padding: 8px 4px;
+            text-align: center;
+            vertical-align: middle;
+            height: 35px;
+          }
+          
+          .seat-cell {
+            display: flex;
+            justify-content: space-between;
+            height: 100%;
+          }
+          
+          .left-seat {
+            width: 48%;
+            text-align: left;
+            padding-left: 5px;
+            border-right: 1px solid #ddd;
+          }
+          
+          .right-seat {
+            width: 48%;
+            text-align: left;
+            padding-left: 5px;
+          }
+          
+          .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            font-size: 10pt;
+          }
+          
+          .summary-table th {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+          }
+          
+          .summary-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+          }
+          
+          .signature {
+            margin-top: 40px;
+            text-align: center;
+          }
+          
+          .signature-line {
+            width: 300px;
+            border-top: 1px solid #000;
+            margin: 0 auto 5px;
+          }
+          
+          .footer {
+            font-size: 10pt;
+            margin-top: 5px;
+          }
+          
+          @media print {
+            .no-print {
+              display: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-container">
+          <!-- Header -->
+          <div class="header">
+            <div class="college-name">NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</div>
+            <div class="title">HALL SEATING ARRANGEMENT</div>
+            <div class="exam-details">
+              <span><strong>Date:</strong> ${examDate || '_______________'}</span>
+              <span><strong>Session:</strong> ${session}</span>
+              <span><strong>Hall:</strong> ${examHall || '_______________'}</span>
+              <span><strong>Seating:</strong> ${rows} rows × ${columns} columns</span>
             </div>
           </div>
+          
+          <!-- Seating Table -->
+          <table class="seating-table">
+            <thead>
+              <tr>
+                ${Array.from({ length: columns }).map((_, colIndex) => `
+                  <th>Column ${colIndex + 1}<br/><small>${colIndex % 2 === 0 ? 'Top to Bottom' : 'Bottom to Top'}</small></th>
+                `).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${seatingData.map((row, rowIndex) => `
+                <tr>
+                  ${row.map((col, colIndex) => `
+                    <td>
+                      <div class="seat-cell">
+                        <div class="left-seat">${col.left || ''}</div>
+                        <div class="right-seat">${col.right || ''}</div>
+                      </div>
+                    </td>
+                  `).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <!-- Summary Table -->
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Department</th>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Total Students</th>
+                <th>PRESENT</th>
+                <th>ABSENT</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${courses.length > 0 ? courses.map(course => `
+                <tr>
+                  <td>${course.department}</td>
+                  <td>${course.courseCode}</td>
+                  <td>${course.courseTitle}</td>
+                  <td>${course.regCount}</td>
+                  <td>_______________</td>
+                  <td>_______________</td>
+                </tr>
+              `).join('') : `
+                <tr>
+                  <td>_______________</td>
+                  <td>_______________</td>
+                  <td>_______________</td>
+                  <td>_______________</td>
+                  <td>_______________</td>
+                  <td>_______________</td>
+                </tr>
+              `}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold;">TOTAL STUDENTS:</td>
+                <td style="font-weight: bold;">${totalStudents}</td>
+                <td colspan="2"></td>
+              </tr>
+            </tfoot>
+          </table>
+          
+          <!-- Signature -->
+          <div class="signature">
+            <div class="signature-line"></div>
+            <div class="footer">Name and Signature of the Hall Superintendent</div>
+          </div>
         </div>
-      )}
+        
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() {
+              window.close();
+            }, 100);
+          };
+        </script>
+      </body>
+      </html>
+    `;
 
-      {/* Main Container */}
-      <div className={`max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden mt-16 lg:mt-0 ${showMobileMenu ? 'blur-sm' : ''}`}>
-        {/* Desktop Header */}
-        <div className="print:hidden hidden lg:block bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white p-8">
-          <h1 className="text-4xl font-bold text-center mb-4 drop-shadow-lg">NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</h1>
-          <p className="text-center text-lg opacity-90 leading-relaxed">
-            (Affiliated to Bharathiar University Accredited with "A+" Grade by NAAC,<br />
-            ISO 9001:2015 (QMS) & 21001:2018 (EDMS) Certified, Recognized by UGC with 2(f) &12(B),<br />
-            Under Star College Science by DBT. Approved by AICTE, Govt. of India).<br />
-            Nehru Gardens, Thirumalayampalayam, Coimbatore – 641 105, Tamil Nadu, India.<br />
-            E-mail: nascoffice@nehrucolleges.com. Ph: 0422-2480007 Web Site: www.nasccbe.ac.in
-          </p>
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 p-4 md:p-6">
+      {/* Floating Stats */}
+      <div className="fixed top-4 right-4 z-10 bg-white rounded-2xl p-4 border border-purple-200 shadow-xl">
+        <div className="flex items-center space-x-4">
+          <div className="text-center">
+            <div className="text-gray-600 text-sm">Grid</div>
+            <div className="text-2xl font-bold text-purple-700">{rows}×{columns}</div>
+          </div>
+          <div className="h-8 w-px bg-purple-200"></div>
+          <div className="text-center">
+            <div className="text-gray-600 text-sm">Seats</div>
+            <div className="text-2xl font-bold text-purple-700">{totalFilledSeats}/{totalSeats}</div>
+          </div>
+          <div className="h-8 w-px bg-purple-200"></div>
+          <div className="text-center">
+            <div className="text-gray-600 text-sm">Students</div>
+            <div className="text-2xl font-bold text-emerald-600">{totalStudents}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3 bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+            Hall Seating Arrangement
+          </h1>
+          <p className="text-lg text-gray-600">Nehru Arts and Science College</p>
         </div>
 
-        {/* Gradient Divider */}
-        <div className="print:hidden h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-
-        {/* Exam Info Section */}
-        <div className="p-6 md:p-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8 relative">
-            HALL SEATING ARRANGEMENT
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
-          </h2>
-
-          {/* Exam Details Form */}
-          <div className="print:hidden bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-8 border border-gray-200 shadow-lg">
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-              {/* Date */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">DATE OF EXAMINATION</label>
-                <input
-                  type="date"
-                  value={examDate}
-                  onChange={(e) => setExamDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300"
-                />
+        {/* Main Dashboard */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Course Form */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Add Course Card */}
+            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                  <span className="mr-3 text-3xl text-purple-500">🎓</span>
+                  Add Course Students
+                </h2>
+                <button
+                  onClick={handlePrint}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                >
+                  <span className="text-xl">🖨️</span>
+                  <span>Print Layout</span>
+                </button>
               </div>
 
-              {/* Session */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">SESSION</label>
-                <div className="flex space-x-4 pt-1">
-                  <label className="flex items-center space-x-3 cursor-pointer group">
-                    <div className="relative">
-                      <input
-                        type="radio"
-                        value="AM"
-                        checked={session === 'AM'}
-                        onChange={() => setSession('AM')}
-                        className="sr-only"
-                      />
-                      <div className={`w-6 h-6 rounded-full border-2 ${session === 'AM' ? 'border-indigo-500 bg-indigo-500' : 'border-gray-400'} flex items-center justify-center transition-all duration-300 group-hover:border-indigo-400`}>
-                        {session === 'AM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
-                      </div>
-                    </div>
-                    <span className="text-gray-700 font-medium group-hover:text-indigo-600 transition-colors duration-300">AM</span>
-                  </label>
-                  <label className="flex items-center space-x-3 cursor-pointer group">
-                    <div className="relative">
-                      <input
-                        type="radio"
-                        value="PM"
-                        checked={session === 'PM'}
-                        onChange={() => setSession('PM')}
-                        className="sr-only"
-                      />
-                      <div className={`w-6 h-6 rounded-full border-2 ${session === 'PM' ? 'border-indigo-500 bg-indigo-500' : 'border-gray-400'} flex items-center justify-center transition-all duration-300 group-hover:border-indigo-400`}>
-                        {session === 'PM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
-                      </div>
-                    </div>
-                    <span className="text-gray-700 font-medium group-hover:text-indigo-600 transition-colors duration-300">PM</span>
-                  </label>
+              {/* Exam Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Exam Date</label>
+                  <input
+                    type="date"
+                    value={examDate}
+                    onChange={(e) => setExamDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
                 </div>
-              </div>
-
-              {/* Hall */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">EXAM HALL</label>
-                <input
-                  type="text"
-                  value={examHall}
-                  onChange={(e) => setExamHall(e.target.value)}
-                  placeholder="e.g., Hall 1"
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 placeholder-gray-400"
-                />
-              </div>
-
-              {/* Seating Configuration */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wider">SEATING CONFIGURATION</label>
-                <div className="bg-white rounded-xl p-4 border-2 border-gray-300">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-gray-600">Rows</label>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Session</label>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center space-x-2 cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="radio"
+                          value="AM"
+                          checked={session === 'AM'}
+                          onChange={() => setSession('AM')}
+                          className="sr-only"
+                        />
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'AM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                          {session === 'AM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                        </div>
+                      </div>
+                      <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'AM' ? 'text-purple-600' : ''}`}>AM</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="radio"
+                          value="PM"
+                          checked={session === 'PM'}
+                          onChange={() => setSession('PM')}
+                          className="sr-only"
+                        />
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'PM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                          {session === 'PM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                        </div>
+                      </div>
+                      <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'PM' ? 'text-purple-600' : ''}`}>PM</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Exam Hall</label>
+                  <input
+                    type="text"
+                    value={examHall}
+                    onChange={(e) => setExamHall(e.target.value)}
+                    placeholder="Hall name"
+                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Seating Grid</label>
+                  <div className="flex space-x-3">
+                    <div className="relative flex-1">
                       <input
                         type="number"
                         min="1"
                         max="20"
                         value={rows}
                         onChange={(e) => setRows(parseInt(e.target.value) || 7)}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-center font-bold text-gray-800"
+                        className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        placeholder="Rows"
                       />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Rows</div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-gray-600">Columns</label>
+                    <span className="self-center text-gray-400">×</span>
+                    <div className="relative flex-1">
                       <input
                         type="number"
                         min="1"
                         max="10"
                         value={columns}
                         onChange={(e) => setColumns(parseInt(e.target.value) || 4)}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-center font-bold text-gray-800"
+                        className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        placeholder="Cols"
                       />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Cols</div>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-3 rounded-lg">
-                      <p className="text-xs text-indigo-600 font-medium">Total Seats</p>
-                      <p className="text-2xl font-bold text-indigo-700">{totalSeats}</p>
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg">
-                      <p className="text-xs text-purple-600 font-medium">Per Side</p>
-                      <p className="text-2xl font-bold text-purple-700">{totalSeatsPerSide}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Print Header */}
-          <div className="hidden print:block text-center mb-8">
-            <div className="text-2xl font-bold border-b-2 border-black pb-2 mb-4">NEHRU ARTS AND SCIENCE COLLEGE</div>
-            <div className="space-y-2 mb-6">
-              <div className="flex justify-center space-x-8">
-                <span><strong>Date:</strong> {examDate || '_______________'}</span>
-                <span><strong>Session:</strong> {session}</span>
-                <span><strong>Hall:</strong> {examHall || '_______________'}</span>
-              </div>
-              <div className="flex justify-center space-x-8">
-                <span><strong>Seating:</strong> {rows} rows × {columns} columns</span>
-                <span><strong>Total Seats:</strong> {totalSeats}</span>
-              </div>
-            </div>
-            <div className="text-xl font-bold underline">HALL SEATING ARRANGEMENT</div>
-          </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 md:p-8">
-          {/* Left Column - Course Form */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Course Form Card */}
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-xl">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-200">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Add Course Students</h3>
-                <div className="flex space-x-4">
-                  <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 px-4 py-2 rounded-xl border border-emerald-200">
-                    <p className="text-xs text-emerald-600 font-medium">Available Seats</p>
-                    <p className="text-xl font-bold text-emerald-700">{totalSeats - totalFilledSeats}</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-2 rounded-xl border border-blue-200">
-                    <p className="text-xs text-blue-600 font-medium">Total Students</p>
-                    <p className="text-xl font-bold text-blue-700">{totalStudents}</p>
                   </div>
                 </div>
               </div>
 
               {/* Course Details */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
-                  Course Details
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Department</label>
-                    <input
-                      type="text"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value.toUpperCase())}
-                      placeholder="e.g., DS"
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 uppercase placeholder-gray-400"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Course Code</label>
-                    <input
-                      type="text"
-                      value={currentCourseCode}
-                      onChange={(e) => setCurrentCourseCode(e.target.value)}
-                      placeholder="Enter course code"
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 placeholder-gray-400"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Course Title</label>
-                    <input
-                      type="text"
-                      value={currentCourseTitle}
-                      onChange={(e) => setCurrentCourseTitle(e.target.value)}
-                      placeholder="Enter course title"
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200 outline-none transition-all duration-300 placeholder-gray-400"
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                  <input
+                    type="text"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value.toUpperCase())}
+                    placeholder="e.g., DS"
+                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Course Code</label>
+                  <input
+                    type="text"
+                    value={currentCourseCode}
+                    onChange={(e) => setCurrentCourseCode(e.target.value)}
+                    placeholder="Course code"
+                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Course Title</label>
+                  <input
+                    type="text"
+                    value={currentCourseTitle}
+                    onChange={(e) => setCurrentCourseTitle(e.target.value)}
+                    placeholder="Course title"
+                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
                 </div>
               </div>
 
               {/* Register Numbers */}
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-                  Register Numbers
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Starting Register No.</label>
-                    <input
-                      type="text"
-                      value={startRegNo}
-                      onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
-                      placeholder="e.g., 24PGDT001"
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-200 outline-none transition-all duration-300 uppercase placeholder-gray-400 font-mono"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Ending Register No.</label>
-                    <input
-                      type="text"
-                      value={endRegNo}
-                      onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
-                      placeholder="e.g., 24PGDT012"
-                      className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-200 outline-none transition-all duration-300 uppercase placeholder-gray-400 font-mono"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Total Students</label>
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="relative w-24 h-24 mb-3">
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-20"></div>
-                        <div className="absolute inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
-                          <span className="text-3xl font-bold text-white">{regCount > 0 ? regCount : '0'}</span>
-                        </div>
-                      </div>
-                      <span className="text-sm text-gray-600 font-medium">students</span>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Register No.</label>
+                  <input
+                    type="text"
+                    value={startRegNo}
+                    onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
+                    placeholder="24PGDT001"
+                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
                 </div>
-              </div>
-
-              {/* Seat Availability */}
-              <div className="mb-8">
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
-                  <h5 className="text-lg font-semibold text-gray-800 mb-4 text-center">Seat Availability</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-xl border-l-4 border-indigo-500">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-indigo-700">Left Side</span>
-                        <span className="text-xl font-bold text-indigo-800">{leftAvailableSeats}/{totalSeatsPerSide}</span>
-                      </div>
-                      <div className="mt-2 w-full bg-indigo-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${(leftAvailableSeats/totalSeatsPerSide)*100}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border-l-4 border-purple-500">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-purple-700">Right Side</span>
-                        <span className="text-xl font-bold text-purple-800">{rightAvailableSeats}/{totalSeatsPerSide}</span>
-                      </div>
-                      <div className="mt-2 w-full bg-purple-200 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${(rightAvailableSeats/totalSeatsPerSide)*100}%` }}
-                        ></div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">End Register No.</label>
+                  <input
+                    type="text"
+                    value={endRegNo}
+                    onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
+                    placeholder="24PGDT012"
+                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Total Students</label>
+                  <div className="flex items-center space-x-6">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-30 blur-sm"></div>
+                      <div className="relative w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+                        <span className="text-3xl font-bold text-white">{regCount > 0 ? regCount : '0'}</span>
                       </div>
                     </div>
-                    <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-xl border-l-4 border-gray-600">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-700">Total</span>
-                        <span className="text-xl font-bold text-gray-800">{totalSeats - totalFilledSeats}/{totalSeats}</span>
-                      </div>
-                      <div className="mt-2 w-full bg-gray-300 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-gray-600 to-gray-700 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${((totalSeats - totalFilledSeats)/totalSeats)*100}%` }}
-                        ></div>
-                      </div>
+                    <div>
+                      <p className="text-sm text-gray-600">students</p>
+                      <p className="text-xs text-gray-500">Auto-calculated</p>
                     </div>
                   </div>
                 </div>
@@ -1133,180 +1203,92 @@ function App() {
 
               {/* Seating Preferences */}
               <div className="mb-8">
-                <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                  Seating Preferences
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">Fill Which Side First</label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <label className={`relative cursor-pointer ${fillSide === 'left' ? 'ring-4 ring-indigo-200' : ''}`}>
-                        <input
-                          type="radio"
-                          value="left"
-                          checked={fillSide === 'left'}
-                          onChange={() => setFillSide('left')}
-                          className="sr-only"
-                        />
-                        <div className={`p-4 rounded-xl border-2 ${fillSide === 'left' ? 'border-indigo-500 bg-gradient-to-r from-indigo-50 to-indigo-100' : 'border-gray-300 bg-white hover:border-indigo-300'} transition-all duration-300`}>
-                          <div className="flex items-center justify-center gap-2">
-                            <span className="text-2xl">⬅️</span>
-                            <span className="font-medium text-gray-700">Left Side</span>
-                          </div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">Fill Side First</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'left' ? 'scale-105' : 'hover:scale-105'}`}>
+                    <input
+                      type="radio"
+                      value="left"
+                      checked={fillSide === 'left'}
+                      onChange={() => setFillSide('left')}
+                      className="sr-only"
+                    />
+                    <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${fillSide === 'left' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-200 bg-gray-50 hover:border-purple-300'}`}>
+                      <div className="flex items-center justify-center space-x-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white">
+                          ⬅️
                         </div>
-                      </label>
-                      <label className={`relative cursor-pointer ${fillSide === 'right' ? 'ring-4 ring-purple-200' : ''}`}>
-                        <input
-                          type="radio"
-                          value="right"
-                          checked={fillSide === 'right'}
-                          onChange={() => setFillSide('right')}
-                          className="sr-only"
-                        />
-                        <div className={`p-4 rounded-xl border-2 ${fillSide === 'right' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-300 bg-white hover:border-purple-300'} transition-all duration-300`}>
-                          <div className="flex items-center justify-center gap-2">
-                            <span className="text-2xl">➡️</span>
-                            <span className="font-medium text-gray-700">Right Side</span>
-                          </div>
+                        <div>
+                          <div className="text-lg font-bold text-gray-800">Left Side</div>
+                          <div className="text-sm text-gray-600">Fill left seats first</div>
                         </div>
-                      </label>
+                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex flex-col space-y-4">
-                    <button
-                      onClick={saveAndAddCourse}
-                      className="px-6 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-bold text-lg hover:from-emerald-600 hover:to-emerald-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
-                    >
-                      <span className="text-xl">✓</span>
-                      Save Course & Add to Seating
-                    </button>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button
-                        onClick={clearAllCourses}
-                        className="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                      >
-                        <span>🗑️</span>
-                        Clear All
-                      </button>
-                      <button
-                        onClick={handlePrint}
-                        className="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold hover:from-blue-600 hover:to-blue-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                      >
-                        <span>🖨️</span>
-                        Print/PDF
-                      </button>
+                  </label>
+                  <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'right' ? 'scale-105' : 'hover:scale-105'}`}>
+                    <input
+                      type="radio"
+                      value="right"
+                      checked={fillSide === 'right'}
+                      onChange={() => setFillSide('right')}
+                      className="sr-only"
+                    />
+                    <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${fillSide === 'right' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-200 bg-gray-50 hover:border-purple-300'}`}>
+                      <div className="flex items-center justify-center space-x-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white">
+                          ➡️
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-gray-800">Right Side</div>
+                          <div className="text-sm text-gray-600">Fill right seats first</div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </label>
                 </div>
               </div>
 
-              {/* Tip */}
-              <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-5 border border-amber-200">
-                <div className="flex items-start gap-4">
-                  <div className="text-3xl">💡</div>
-                  <div>
-                    <p className="font-bold text-amber-800 mb-1">Tip:</p>
-                    <p className="text-amber-700">
-                      Click on any seat to edit the register number directly. 
-                      Editing a sequence seat will renumber all subsequent seats automatically.
-                    </p>
-                  </div>
-                </div>
+              {/* Action Buttons */}
+              <div className="flex flex-col md:flex-row gap-4">
+                <button
+                  onClick={saveAndAddCourse}
+                  className="flex-1 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-3 group"
+                >
+                  <span className="text-2xl group-hover:scale-110 transition-transform">✨</span>
+                  <span>Add Course to Seating</span>
+                </button>
+                <button
+                  onClick={clearAllCourses}
+                  className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-2xl font-bold hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-3 group"
+                >
+                  <span className="text-xl group-hover:rotate-12 transition-transform">🗑️</span>
+                  <span>Clear All</span>
+                </button>
               </div>
             </div>
 
-            {/* Courses List */}
-            {courses.length > 0 && (
-              <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-6 border border-blue-200 shadow-xl">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b border-blue-200">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Added Courses ({courses.length})</h3>
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl">
-                    <p className="text-lg font-bold">Total Students: {totalStudents}</p>
-                  </div>
-                </div>
-                <div className="overflow-x-auto rounded-xl border border-blue-200">
-                  <table className="min-w-full divide-y divide-blue-200">
-                    <thead className="bg-gradient-to-r from-blue-50 to-blue-100">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Dept</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Code</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Title</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Register Numbers</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Count</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-blue-100">
-                      {courses.map((course) => (
-                        <tr key={course.id} className="hover:bg-blue-50 transition-colors duration-200">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-800">
-                              {course.department}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{course.courseCode}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">{course.courseTitle}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="font-mono text-sm">
-                              <div className="text-gray-900 font-bold">{course.startRegNo}</div>
-                              <div className="text-gray-500 text-xs text-center">to</div>
-                              <div className="text-gray-900 font-bold">{course.endRegNo}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-                              {course.regCount}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <button
-                              onClick={() => removeCourse(course.id)}
-                              className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-bold hover:from-red-600 hover:to-red-700 transform hover:-translate-y-0.5 transition-all duration-300 shadow hover:shadow-lg"
-                            >
-                              Remove
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {/* Seating Arrangement Card */}
+            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                  <span className="mr-3 text-3xl text-purple-500">🪑</span>
+                  Seating Arrangement
+                </h2>
+                <div className="text-sm text-gray-600">
+                  Click any seat to edit • L = Left • R = Right
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Right Column - Seating Arrangement */}
-          <div className="space-y-8">
-            {/* Seating Stats Card */}
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 shadow-xl">
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                <h3 className="text-2xl font-bold text-gray-800">Seating Arrangement</h3>
-                <div className="flex space-x-3">
-                  <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 px-3 py-2 rounded-lg">
-                    <p className="text-xs text-indigo-600 font-medium">Grid</p>
-                    <p className="text-lg font-bold text-indigo-700">{rows}×{columns}</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 px-3 py-2 rounded-lg">
-                    <p className="text-xs text-purple-600 font-medium">Filled</p>
-                    <p className="text-lg font-bold text-purple-700">{totalFilledSeats}/{totalSeats}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seating Table */}
-              <div className="overflow-x-auto rounded-xl border-2 border-gray-300">
-                <table className="min-w-full border-collapse">
+              
+              <div className="overflow-x-auto rounded-2xl border border-purple-200 bg-purple-50/30 p-2">
+                <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-gray-100 to-gray-200">
+                    <tr>
                       {Array.from({ length: columns }).map((_, colIndex) => (
-                        <th key={colIndex} className="px-4 py-3 text-center border-r border-gray-300 last:border-r-0">
+                        <th key={colIndex} className="px-4 py-3 text-center">
                           <div className="flex flex-col items-center">
-                            <span className="font-bold text-gray-800">Col {colIndex + 1}</span>
-                            <span className={`text-xs ${colIndex % 2 === 0 ? 'text-indigo-600' : 'text-purple-600'} font-medium`}>
-                              {colIndex % 2 === 0 ? '↓ Top to Bottom' : '↑ Bottom to Top'}
+                            <span className="font-bold text-gray-800 text-lg">Column {colIndex + 1}</span>
+                            <span className={`text-xs ${colIndex % 2 === 0 ? 'text-purple-600' : 'text-pink-600'} font-medium`}>
+                              {colIndex % 2 === 0 ? '↓ Top-Bottom' : '↑ Bottom-Top'}
                             </span>
                           </div>
                         </th>
@@ -1317,100 +1299,64 @@ function App() {
                     {seatingData.map((row, rowIndex) => (
                       <tr key={rowIndex}>
                         {row.map((col, colIndex) => (
-                          <td key={colIndex} className="border border-gray-300 p-2">
-                            <div className="flex h-24">
+                          <td key={colIndex} className="p-2">
+                            <div className="flex h-28 bg-gradient-to-br from-white to-purple-50 rounded-xl border border-purple-200 hover:border-purple-400 transition-all duration-300 hover:scale-105">
                               {/* Left Side */}
-                              <div className="flex-1 flex items-center justify-center border-r border-gray-300 bg-gradient-to-br from-indigo-50 to-indigo-100">
+                              <div className="flex-1 relative border-r border-purple-200">
+                                <div className="absolute top-2 left-2 text-xs text-purple-600/70 font-bold">L</div>
                                 {editingCell && editingCell.row === rowIndex &&
                                   editingCell.col === colIndex && editingCell.side === 'left' ? (
-                                  <div className="w-full h-full p-2">
+                                  <div className="h-full flex items-center justify-center p-2">
                                     <input
                                       type="text"
                                       value={editValue}
                                       onChange={(e) => setEditValue(e.target.value)}
-                                      className="w-full h-full px-2 text-sm border-2 border-indigo-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 text-center uppercase font-mono"
+                                      className="w-full h-full px-3 text-sm bg-white border-2 border-purple-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
                                       autoFocus
                                       onKeyDown={(e) => {
                                         if (e.key === 'Enter') saveEdit();
                                         if (e.key === 'Escape') cancelEdit();
                                       }}
                                     />
-                                    <div className="flex gap-2 mt-2">
-                                      <button
-                                        onClick={saveEdit}
-                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm rounded-lg font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300"
-                                      >
-                                        ✓
-                                      </button>
-                                      <button
-                                        onClick={cancelEdit}
-                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm rounded-lg font-bold hover:from-red-600 hover:to-red-700 transition-all duration-300"
-                                      >
-                                        ✗
-                                      </button>
-                                    </div>
                                   </div>
                                 ) : (
                                   <div
-                                    className={`w-full h-full flex items-center justify-center p-2 cursor-pointer hover:bg-white/50 rounded-lg transition-all duration-300 ${col.leftSequenceId ? 'bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200' : ''}`}
+                                    className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
                                     onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
-                                    title={col.leftSequenceId ? "Part of auto-renumbering sequence" : ""}
                                   >
-                                    {col.left ? (
-                                      <span className="text-sm font-mono font-bold text-gray-800 text-center break-all">
-                                        {col.left}
-                                      </span>
-                                    ) : (
-                                      <span className="text-xs text-gray-400 italic">Empty</span>
-                                    )}
+                                    <span className="text-sm font-mono text-gray-800 font-bold break-all">
+                                      {col.left || ''}
+                                    </span>
                                   </div>
                                 )}
                               </div>
-
+                              
                               {/* Right Side */}
-                              <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100">
+                              <div className="flex-1 relative">
+                                <div className="absolute top-2 right-2 text-xs text-pink-600/70 font-bold">R</div>
                                 {editingCell && editingCell.row === rowIndex &&
                                   editingCell.col === colIndex && editingCell.side === 'right' ? (
-                                  <div className="w-full h-full p-2">
+                                  <div className="h-full flex items-center justify-center p-2">
                                     <input
                                       type="text"
                                       value={editValue}
                                       onChange={(e) => setEditValue(e.target.value)}
-                                      className="w-full h-full px-2 text-sm border-2 border-purple-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 text-center uppercase font-mono"
+                                      className="w-full h-full px-3 text-sm bg-white border-2 border-pink-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-pink-400"
                                       autoFocus
                                       onKeyDown={(e) => {
                                         if (e.key === 'Enter') saveEdit();
                                         if (e.key === 'Escape') cancelEdit();
                                       }}
                                     />
-                                    <div className="flex gap-2 mt-2">
-                                      <button
-                                        onClick={saveEdit}
-                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm rounded-lg font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300"
-                                      >
-                                        ✓
-                                      </button>
-                                      <button
-                                        onClick={cancelEdit}
-                                        className="flex-1 px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm rounded-lg font-bold hover:from-red-600 hover:to-red-700 transition-all duration-300"
-                                      >
-                                        ✗
-                                      </button>
-                                    </div>
                                   </div>
                                 ) : (
                                   <div
-                                    className={`w-full h-full flex items-center justify-center p-2 cursor-pointer hover:bg-white/50 rounded-lg transition-all duration-300 ${col.rightSequenceId ? 'bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200' : ''}`}
+                                    className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
                                     onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
-                                    title={col.rightSequenceId ? "Part of auto-renumbering sequence" : ""}
                                   >
-                                    {col.right ? (
-                                      <span className="text-sm font-mono font-bold text-gray-800 text-center break-all">
-                                        {col.right}
-                                      </span>
-                                    ) : (
-                                      <span className="text-xs text-gray-400 italic">Empty</span>
-                                    )}
+                                    <span className="text-sm font-mono text-gray-800 font-bold break-all">
+                                      {col.right || ''}
+                                    </span>
                                   </div>
                                 )}
                               </div>
@@ -1422,100 +1368,174 @@ function App() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
 
-              {/* Legend */}
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-xl border border-indigo-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-indigo-700">Left Side</p>
-                      <p className="text-lg font-bold text-indigo-800">{leftSidePosition.filledCount}/{totalSeatsPerSide}</p>
+          {/* Right Column - Sidebar (REORDERED) */}
+          <div className="space-y-6">
+            {/* Courses List - FIRST */}
+            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                  <span className="mr-3 text-3xl text-purple-500">📚</span>
+                  Courses ({courses.length})
+                </h2>
+                <div className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
+                  <p className="text-lg font-bold text-white">{totalStudents} students</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                {courses.length > 0 ? (
+                  courses.map((course) => (
+                    <div 
+                      key={course.id} 
+                      className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 border border-purple-200 hover:border-purple-300 transition-all duration-300 group hover:scale-[1.02]"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <span className="font-bold text-purple-700 text-lg">{course.department}</span>
+                          <span className="ml-2 text-gray-700">{course.courseCode}</span>
+                        </div>
+                        <button
+                          onClick={() => removeCourse(course.id)}
+                          className="text-red-600 hover:text-red-500 text-sm px-3 py-1 rounded-lg bg-white hover:bg-red-50 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{course.courseTitle}</p>
+                      <div className="flex justify-between items-center">
+                        <div className="font-mono text-gray-800 text-sm">
+                          {course.startRegNo} - {course.endRegNo}
+                        </div>
+                        <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs font-bold text-white">
+                          {course.regCount} students
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-5xl mb-4 opacity-30 text-purple-400">📚</div>
+                    <p className="text-gray-500">No courses added yet</p>
+                    <p className="text-gray-400 text-sm mt-2">Add your first course above</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Stats - SECOND (moved up) */}
+            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center mb-6">
+                <span className="mr-3 text-3xl text-purple-500">📈</span>
+                Quick Stats
+              </h2>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center">
+                      <span className="text-purple-600">💺</span>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-600">Total Seats</div>
+                      <div className="text-xl font-bold text-gray-800">{totalSeats}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm text-gray-600">Filled</div>
+                    <div className="text-xl font-bold text-emerald-600">{totalFilledSeats}</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <div className="text-sm text-purple-600 mb-1">Left Side</div>
+                    <div className="text-2xl font-bold text-gray-800">{leftAvailableSeats} available</div>
+                    <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                        style={{ width: `${(leftAvailableSeats/totalSeatsPerSide)*100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <div className="text-sm text-purple-600 mb-1">Right Side</div>
+                    <div className="text-2xl font-bold text-gray-800">{rightAvailableSeats} available</div>
+                    <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                        style={{ width: `${(rightAvailableSeats/totalSeatsPerSide)*100}%` }}
+                      ></div>
                     </div>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-purple-700">Right Side</p>
-                      <p className="text-lg font-bold text-purple-800">{rightSidePosition.filledCount}/{totalSeatsPerSide}</p>
-                    </div>
+                
+                <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-emerald-600">Total Students</div>
+                    <div className="text-3xl font-bold text-emerald-700">{totalStudents}</div>
                   </div>
-                </div>
-                <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-4 rounded-xl border border-gray-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-700">Total</p>
-                      <p className="text-lg font-bold text-gray-800">{totalFilledSeats}/{totalSeats}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-xl border border-amber-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full border border-amber-600 border-dashed"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-amber-700">Auto-renumbering</p>
-                      <p className="text-xs text-amber-600">Click to edit sequence</p>
-                    </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Across {courses.length} course{courses.length !== 1 ? 's' : ''}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Attendance Summary */}
-            <div className="bg-gradient-to-br from-white to-emerald-50 rounded-2xl p-6 border border-emerald-200 shadow-xl">
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-emerald-200">
-                <h3 className="text-2xl font-bold text-gray-800">Attendance Summary</h3>
-                <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2 rounded-xl">
-                  <p className="text-lg font-bold">Students: {totalStudents}</p>
-                </div>
-              </div>
-              <div className="overflow-x-auto rounded-xl border border-emerald-200">
-                <table className="min-w-full">
-                  <thead className="bg-gradient-to-r from-emerald-50 to-emerald-100">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Dept</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Code</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Title</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">Total</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">PRESENT</th>
-                      <th className="px-4 py-3 text-left text-xs font-bold text-emerald-700 uppercase tracking-wider">ABSENT</th>
+            {/* Summary Preview - THIRD */}
+            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center mb-6">
+                <span className="mr-3 text-3xl text-purple-500">📊</span>
+                Summary Preview
+              </h2>
+              
+              <div className="overflow-x-auto rounded-xl border border-purple-200">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-purple-50">
+                      <th className="px-4 py-3 text-center text-gray-700 font-bold">Dept</th>
+                      <th className="px-4 py-3 text-center text-gray-700 font-bold">Code</th>
+                      <th className="px-4 py-3 text-center text-gray-700 font-bold">Title</th>
+                      <th className="px-4 py-3 text-center text-gray-700 font-bold">Total</th>
+                      <th className="px-4 py-3 text-center text-gray-700 font-bold">PRESENT</th>
+                      <th className="px-4 py-3 text-center text-gray-700 font-bold">ABSENT</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-emerald-100">
+                  <tbody>
                     {courses.length > 0 ? (
                       courses.map((course) => (
-                        <tr key={course.id} className="hover:bg-emerald-50 transition-colors duration-200">
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-emerald-800">{course.department}</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{course.courseCode}</td>
-                          <td className="px-4 py-3 text-sm text-gray-700 truncate max-w-xs">{course.courseTitle}</td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+                        <tr key={course.id} className="border-b border-purple-100 hover:bg-purple-50">
+                          <td className="px-4 py-3 text-center text-gray-800">{course.department}</td>
+                          <td className="px-4 py-3 text-center text-gray-800">{course.courseCode}</td>
+                          <td className="px-4 py-3 text-center text-gray-600 truncate max-w-[80px]" title={course.courseTitle}>{course.courseTitle}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="inline-block px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded text-sm font-bold text-white">
                               {course.regCount}
                             </span>
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">_______________</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">_______________</td>
+                          <td className="px-4 py-3 text-center text-gray-400">_______</td>
+                          <td className="px-4 py-3 text-center text-gray-400">_______</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
-                          No courses added yet. Add a course to see the summary.
+                        <td colSpan="6" className="px-4 py-8 text-center text-gray-400">
+                          No courses added yet
                         </td>
                       </tr>
                     )}
                   </tbody>
                   {courses.length > 0 && (
-                    <tfoot className="bg-gradient-to-r from-emerald-100 to-emerald-200">
+                    <tfoot className="bg-purple-50">
                       <tr>
-                        <td colSpan="3" className="px-4 py-4 text-right text-sm font-bold text-emerald-800">
+                        <td colSpan="3" className="px-4 py-4 text-right text-gray-700 font-bold">
                           TOTAL STUDENTS:
                         </td>
-                        <td className="px-4 py-4">
-                          <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-lg font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+                        <td className="px-4 py-4 text-center">
+                          <span className="inline-block px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-lg font-bold text-white">
                             {totalStudents}
                           </span>
                         </td>
@@ -1525,47 +1545,21 @@ function App() {
                   )}
                 </table>
               </div>
-
-              {/* Signature Section */}
-              <div className="mt-8 pt-6 border-t border-emerald-200">
-                <div className="relative">
-                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent"></div>
-                  <div className="h-0.5 bg-emerald-600 mt-4"></div>
-                </div>
-                <p className="text-center text-sm text-gray-600 mt-4 font-medium">
-                  Name and Signature of the Hall Superintendent
-                </p>
+              
+              <div className="mt-8 pt-6 border-t border-purple-200 text-center">
+                <div className="h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent mb-3"></div>
+                <p className="text-sm text-gray-600">Name and Signature of the Hall Superintendent</p>
               </div>
             </div>
           </div>
         </div>
+        
+        {/* Footer */}
+        <div className="text-center text-gray-500 text-sm mt-8 pt-6 border-t border-purple-200">
+          <p>Hall Seating Arrangement System • Nehru Arts and Science College</p>
+          <p className="text-xs mt-1">Click on any seat to edit register numbers</p>
+        </div>
       </div>
-
-      {/* Print Styles */}
-      <style jsx>{`
-        @media print {
-          .print\\:hidden {
-            display: none !important;
-          }
-          body {
-            background: white !important;
-          }
-          .bg-gradient-to-br, .shadow-2xl, .border, .rounded-3xl {
-            box-shadow: none !important;
-            border: 1px solid #000 !important;
-            border-radius: 0 !important;
-            background: white !important;
-          }
-          table {
-            border-collapse: collapse;
-            width: 100%;
-          }
-          th, td {
-            border: 1px solid #000 !important;
-            padding: 8px !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
