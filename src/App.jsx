@@ -987,9 +987,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 p-4 md:p-6">
-      {/* Floating Stats */}
-     
-
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -999,435 +996,432 @@ function App() {
           <p className="text-lg text-gray-600">Nehru Arts and Science College</p>
         </div>
 
-        {/* Main Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Course Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Add Course Card */}
-            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                  <span className="mr-3 text-3xl text-purple-500">🎓</span>
-                  Add Course Students
-                </h2>
-                <button
-                  onClick={handlePrint}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center space-x-2"
-                >
-                  <span className="text-xl">🖨️</span>
-                  <span>Print Layout</span>
-                </button>
-              </div>
-
-              {/* Exam Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Exam Date</label>
-                  <input
-                    type="date"
-                    value={examDate}
-                    onChange={(e) => setExamDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Session</label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center space-x-2 cursor-pointer group">
-                      <div className="relative">
-                        <input
-                          type="radio"
-                          value="AM"
-                          checked={session === 'AM'}
-                          onChange={() => setSession('AM')}
-                          className="sr-only"
-                        />
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'AM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
-                          {session === 'AM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
-                        </div>
-                      </div>
-                      <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'AM' ? 'text-purple-600' : ''}`}>AM</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer group">
-                      <div className="relative">
-                        <input
-                          type="radio"
-                          value="PM"
-                          checked={session === 'PM'}
-                          onChange={() => setSession('PM')}
-                          className="sr-only"
-                        />
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'PM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
-                          {session === 'PM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
-                        </div>
-                      </div>
-                      <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'PM' ? 'text-purple-600' : ''}`}>PM</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Exam Hall</label>
-                  <input
-                    type="text"
-                    value={examHall}
-                    onChange={(e) => setExamHall(e.target.value)}
-                    placeholder="Hall name"
-                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Seating Grid</label>
-                  <div className="flex space-x-3">
-                    <div className="relative flex-1">
-                      <input
-                        type="number"
-                        min="1"
-                        max="20"
-                        value={rows}
-                        onChange={(e) => setRows(parseInt(e.target.value) || 7)}
-                        className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                        placeholder="Rows"
-                      />
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">r</div>
-                    </div>
-                    <span className="self-center text-gray-400">×</span>
-                    <div className="relative flex-1">
-                      <input
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={columns}
-                        onChange={(e) => setColumns(parseInt(e.target.value) || 4)}
-                        className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                        placeholder="Cols"
-                      />
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">c</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Course Details */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                  <input
-                    type="text"
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value.toUpperCase())}
-                    placeholder="e.g., DS"
-                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Course Code</label>
-                  <input
-                    type="text"
-                    value={currentCourseCode}
-                    onChange={(e) => setCurrentCourseCode(e.target.value)}
-                    placeholder="Course code"
-                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Course Title</label>
-                  <input
-                    type="text"
-                    value={currentCourseTitle}
-                    onChange={(e) => setCurrentCourseTitle(e.target.value)}
-                    placeholder="Course title"
-                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Register Numbers */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Register No.</label>
-                  <input
-                    type="text"
-                    value={startRegNo}
-                    onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
-                    placeholder="24PGDT001"
-                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">End Register No.</label>
-                  <input
-                    type="text"
-                    value={endRegNo}
-                    onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
-                    placeholder="24PGDT012"
-                    className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Total Students</label>
-                  <div className="flex items-center space-x-6">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-30 blur-sm"></div>
-                      <div className="relative w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-                        <span className="text-3xl font-bold text-white">{regCount > 0 ? regCount : '0'}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">students</p>
-                      <p className="text-xs text-gray-500">Auto-calculated</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seating Preferences */}
-              <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-700 mb-4">Fill Side First</label>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'left' ? 'scale-105' : 'hover:scale-105'}`}>
-                    <input
-                      type="radio"
-                      value="left"
-                      checked={fillSide === 'left'}
-                      onChange={() => setFillSide('left')}
-                      className="sr-only"
-                    />
-                    <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${fillSide === 'left' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-200 bg-gray-50 hover:border-purple-300'}`}>
-                      <div className="flex items-center justify-center space-x-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white">
-                          ⬅️
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-gray-800">Left Side</div>
-                          <div className="text-sm text-gray-600">Fill left seats first</div>
-                        </div>
-                      </div>
-                    </div>
-                  </label>
-                  <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'right' ? 'scale-105' : 'hover:scale-105'}`}>
-                    <input
-                      type="radio"
-                      value="right"
-                      checked={fillSide === 'right'}
-                      onChange={() => setFillSide('right')}
-                      className="sr-only"
-                    />
-                    <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${fillSide === 'right' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-200 bg-gray-50 hover:border-purple-300'}`}>
-                      <div className="flex items-center justify-center space-x-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white">
-                          ➡️
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-gray-800">Right Side</div>
-                          <div className="text-sm text-gray-600">Fill right seats first</div>
-                        </div>
-                      </div>
-                    </div>
-                  </label>
-                </div>
-
-                {/* Quick Stats in one row UNDER the side selection */}
-                <div className="grid grid-cols-4 gap-4">
-                  {/* Total Seats */}
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-                    <div className="text-sm text-purple-600 mb-1">Total Seats</div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-gray-800">{totalSeats}</div>
-                      <div className="text-sm text-emerald-600 font-semibold">
-                        {totalFilledSeats} filled
-                      </div>
-                    </div>
-                    <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
-                        style={{ width: `${(totalFilledSeats/totalSeats)*100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  {/* Left Side Available */}
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-                    <div className="text-sm text-purple-600 mb-1">Left Available</div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-gray-800">{leftAvailableSeats}</div>
-                      <div className="text-xs text-gray-500">
-                        of {totalSeatsPerSide}
-                      </div>
-                    </div>
-                    <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
-                        style={{ width: `${(leftAvailableSeats/totalSeatsPerSide)*100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  {/* Right Side Available */}
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-                    <div className="text-sm text-purple-600 mb-1">Right Available</div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-gray-800">{rightAvailableSeats}</div>
-                      <div className="text-xs text-gray-500">
-                        of {totalSeatsPerSide}
-                      </div>
-                    </div>
-                    <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
-                        style={{ width: `${(rightAvailableSeats/totalSeatsPerSide)*100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  {/* Total Students */}
-                  <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
-                    <div className="text-sm text-emerald-600 mb-1">Total Students</div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold text-emerald-700">{totalStudents}</div>
-                      <div className="text-xs text-gray-500">
-                        {courses.length} course{courses.length !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      Across all courses
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col md:flex-row gap-4">
-                <button
-                  onClick={saveAndAddCourse}
-                  className="flex-1 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-3 group"
-                >
-                  <span className="text-2xl group-hover:scale-110 transition-transform">✨</span>
-                  <span>Add Course to Seating</span>
-                </button>
-                <button
-                  onClick={clearAllCourses}
-                  className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-2xl font-bold hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-3 group"
-                >
-                  <span className="text-xl group-hover:rotate-12 transition-transform">🗑️</span>
-                  <span>Clear All</span>
-                </button>
-              </div>
+        {/* Main Dashboard - Vertical flow */}
+        <div className="space-y-6">
+          {/* Add Course Card - Full width */}
+          <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-3 text-3xl text-purple-500">🎓</span>
+                Add Course Students
+              </h2>
+              <button
+                onClick={handlePrint}
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center space-x-2"
+              >
+                <span className="text-xl">🖨️</span>
+                <span>Print Layout</span>
+              </button>
             </div>
 
-            {/* Seating Arrangement Card */}
-            <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                  <span className="mr-3 text-3xl text-purple-500">🪑</span>
-                  Seating Arrangement
-                </h2>
-                <div className="text-sm text-gray-600">
-                  Click any seat to edit • L = Left • R = Right
+            {/* Exam Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Exam Date</label>
+                <input
+                  type="date"
+                  value={examDate}
+                  onChange={(e) => setExamDate(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Session</label>
+                <div className="flex space-x-4">
+                  <label className="flex items-center space-x-2 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        value="AM"
+                        checked={session === 'AM'}
+                        onChange={() => setSession('AM')}
+                        className="sr-only"
+                      />
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'AM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                        {session === 'AM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      </div>
+                    </div>
+                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'AM' ? 'text-purple-600' : ''}`}>AM</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="radio"
+                        value="PM"
+                        checked={session === 'PM'}
+                        onChange={() => setSession('PM')}
+                        className="sr-only"
+                      />
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'PM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                        {session === 'PM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      </div>
+                    </div>
+                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'PM' ? 'text-purple-600' : ''}`}>PM</span>
+                  </label>
                 </div>
               </div>
               
-              <div className="overflow-x-auto rounded-2xl border border-purple-200 bg-purple-50/30 p-2">
-                <table className="w-full">
-                  <thead>
-                    <tr>
-                      {Array.from({ length: columns }).map((_, colIndex) => (
-                        <th key={colIndex} className="px-4 py-3 text-center">
-                          <div className="flex flex-col items-center">
-                            <span className="font-bold text-gray-800 text-lg">Column {colIndex + 1}</span>
-                            <span className={`text-xs ${colIndex % 2 === 0 ? 'text-purple-600' : 'text-pink-600'} font-medium`}>
-                              {colIndex % 2 === 0 ? '↓ Top-Bottom' : '↑ Bottom-Top'}
-                            </span>
-                          </div>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {seatingData.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {row.map((col, colIndex) => (
-                          <td key={colIndex} className="p-2">
-                            <div className="flex h-28 bg-gradient-to-br from-white to-purple-50 rounded-xl border border-purple-200 hover:border-purple-400 transition-all duration-300 hover:scale-105">
-                              {/* Left Side */}
-                              <div className="flex-1 relative border-r border-purple-200">
-                                <div className="absolute top-2 left-2 text-xs text-purple-600/70 font-bold">L</div>
-                                {editingCell && editingCell.row === rowIndex &&
-                                  editingCell.col === colIndex && editingCell.side === 'left' ? (
-                                  <div className="h-full flex items-center justify-center p-2">
-                                    <input
-                                      type="text"
-                                      value={editValue}
-                                      onChange={(e) => setEditValue(e.target.value)}
-                                      className="w-full h-full px-3 text-sm bg-white border-2 border-purple-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                      autoFocus
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter') saveEdit();
-                                        if (e.key === 'Escape') cancelEdit();
-                                      }}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div
-                                    className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
-                                    onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
-                                  >
-                                    <span className="text-sm font-mono text-gray-800 font-bold break-all">
-                                      {col.left || ''}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* Right Side */}
-                              <div className="flex-1 relative">
-                                <div className="absolute top-2 right-2 text-xs text-pink-600/70 font-bold">R</div>
-                                {editingCell && editingCell.row === rowIndex &&
-                                  editingCell.col === colIndex && editingCell.side === 'right' ? (
-                                  <div className="h-full flex items-center justify-center p-2">
-                                    <input
-                                      type="text"
-                                      value={editValue}
-                                      onChange={(e) => setEditValue(e.target.value)}
-                                      className="w-full h-full px-3 text-sm bg-white border-2 border-pink-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-pink-400"
-                                      autoFocus
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter') saveEdit();
-                                        if (e.key === 'Escape') cancelEdit();
-                                      }}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div
-                                    className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
-                                    onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
-                                  >
-                                    <span className="text-sm font-mono text-gray-800 font-bold break-all">
-                                      {col.right || ''}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Exam Hall</label>
+                <input
+                  type="text"
+                  value={examHall}
+                  onChange={(e) => setExamHall(e.target.value)}
+                  placeholder="Hall name"
+                  className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Seating Grid</label>
+                <div className="flex space-x-3">
+                  <div className="relative flex-1">
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={rows}
+                      onChange={(e) => setRows(parseInt(e.target.value) || 7)}
+                      className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      placeholder="Rows"
+                    />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">r</div>
+                  </div>
+                  <span className="self-center text-gray-400">×</span>
+                  <div className="relative flex-1">
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={columns}
+                      onChange={(e) => setColumns(parseInt(e.target.value) || 4)}
+                      className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 text-center font-bold focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      placeholder="Cols"
+                    />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">c</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Course Details */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                <input
+                  type="text"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value.toUpperCase())}
+                  placeholder="e.g., DS"
+                  className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Course Code</label>
+                <input
+                  type="text"
+                  value={currentCourseCode}
+                  onChange={(e) => setCurrentCourseCode(e.target.value)}
+                  placeholder="Course code"
+                  className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Course Title</label>
+                <input
+                  type="text"
+                  value={currentCourseTitle}
+                  onChange={(e) => setCurrentCourseTitle(e.target.value)}
+                  placeholder="Course title"
+                  className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Register Numbers */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Start Register No.</label>
+                <input
+                  type="text"
+                  value={startRegNo}
+                  onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
+                  placeholder="24PGDT001"
+                  className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">End Register No.</label>
+                <input
+                  type="text"
+                  value={endRegNo}
+                  onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
+                  placeholder="24PGDT012"
+                  className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Total Students</label>
+                <div className="flex items-center space-x-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-30 blur-sm"></div>
+                    <div className="relative w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+                      <span className="text-3xl font-bold text-white">{regCount > 0 ? regCount : '0'}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">students</p>
+                    <p className="text-xs text-gray-500">Auto-calculated</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Seating Preferences */}
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-700 mb-4">Fill Side First</label>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'left' ? 'scale-105' : 'hover:scale-105'}`}>
+                  <input
+                    type="radio"
+                    value="left"
+                    checked={fillSide === 'left'}
+                    onChange={() => setFillSide('left')}
+                    className="sr-only"
+                  />
+                  <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${fillSide === 'left' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-200 bg-gray-50 hover:border-purple-300'}`}>
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white">
+                        ⬅️
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-800">Left Side</div>
+                        <div className="text-sm text-gray-600">Fill left seats first</div>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+                <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'right' ? 'scale-105' : 'hover:scale-105'}`}>
+                  <input
+                    type="radio"
+                    value="right"
+                    checked={fillSide === 'right'}
+                    onChange={() => setFillSide('right')}
+                    className="sr-only"
+                  />
+                  <div className={`p-6 rounded-2xl border-2 transition-all duration-300 ${fillSide === 'right' ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100' : 'border-gray-200 bg-gray-50 hover:border-purple-300'}`}>
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-2xl text-white">
+                        ➡️
+                      </div>
+                      <div>
+                        <div className="text-lg font-bold text-gray-800">Right Side</div>
+                        <div className="text-sm text-gray-600">Fill right seats first</div>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              {/* Quick Stats in one row UNDER the side selection */}
+              <div className="grid grid-cols-4 gap-4">
+                {/* Total Seats */}
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                  <div className="text-sm text-purple-600 mb-1">Total Seats</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-2xl font-bold text-gray-800">{totalSeats}</div>
+                    <div className="text-sm text-emerald-600 font-semibold">
+                      {totalFilledSeats} filled
+                    </div>
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
+                    <div 
+                      className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                      style={{ width: `${(totalFilledSeats/totalSeats)*100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                {/* Left Side Available */}
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                  <div className="text-sm text-purple-600 mb-1">Left Available</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-2xl font-bold text-gray-800">{leftAvailableSeats}</div>
+                    <div className="text-xs text-gray-500">
+                      of {totalSeatsPerSide}
+                    </div>
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
+                    <div 
+                      className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                      style={{ width: `${(leftAvailableSeats/totalSeatsPerSide)*100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                {/* Right Side Available */}
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                  <div className="text-sm text-purple-600 mb-1">Right Available</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-2xl font-bold text-gray-800">{rightAvailableSeats}</div>
+                    <div className="text-xs text-gray-500">
+                      of {totalSeatsPerSide}
+                    </div>
+                  </div>
+                  <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2">
+                    <div 
+                      className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                      style={{ width: `${(rightAvailableSeats/totalSeatsPerSide)*100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                
+                {/* Total Students */}
+                <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
+                  <div className="text-sm text-emerald-600 mb-1">Total Students</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-2xl font-bold text-emerald-700">{totalStudents}</div>
+                    <div className="text-xs text-gray-500">
+                      {courses.length} course{courses.length !== 1 ? 's' : ''}
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Across all courses
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <button
+                onClick={saveAndAddCourse}
+                className="flex-1 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-3 group"
+              >
+                <span className="text-2xl group-hover:scale-110 transition-transform">✨</span>
+                <span>Add Register no. to Seating</span>
+              </button>
+              <button
+                onClick={clearAllCourses}
+                className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-2xl font-bold hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-3 group"
+              >
+                <span className="text-xl group-hover:rotate-12 transition-transform">🗑️</span>
+                <span>Clear All</span>
+              </button>
             </div>
           </div>
 
-          {/* Right Column - Sidebar (REORDERED) */}
-          <div className="space-y-6">
-            {/* Courses List - FIRST */}
+          {/* Seating Arrangement Card - Now full width and outside the grid */}
+          <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-3 text-3xl text-purple-500">🪑</span>
+                Seating Arrangement
+              </h2>
+              <div className="text-sm text-gray-600">
+                Click any seat to edit • L = Left • R = Right
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto rounded-2xl border border-purple-200 bg-purple-50/30 p-2">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    {Array.from({ length: columns }).map((_, colIndex) => (
+                      <th key={colIndex} className="px-4 py-3 text-center">
+                        <div className="flex flex-col items-center">
+                          <span className="font-bold text-gray-800 text-lg">Column {colIndex + 1}</span>
+                          <span className={`text-xs ${colIndex % 2 === 0 ? 'text-purple-600' : 'text-pink-600'} font-medium`}>
+                            {colIndex % 2 === 0 ? '↓ Top-Bottom' : '↑ Bottom-Top'}
+                          </span>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {seatingData.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {row.map((col, colIndex) => (
+                        <td key={colIndex} className="p-2">
+                          <div className="flex h-28 bg-gradient-to-br from-white to-purple-50 rounded-xl border border-purple-200 hover:border-purple-400 transition-all duration-300 hover:scale-105">
+                            {/* Left Side */}
+                            <div className="flex-1 relative border-r border-purple-200">
+                              <div className="absolute top-2 left-2 text-xs text-purple-600/70 font-bold">L</div>
+                              {editingCell && editingCell.row === rowIndex &&
+                                editingCell.col === colIndex && editingCell.side === 'left' ? (
+                                <div className="h-full flex items-center justify-center p-2">
+                                  <input
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    className="w-full h-full px-3 text-sm bg-white border-2 border-purple-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
+                                  onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
+                                >
+                                  <span className="text-sm font-mono text-gray-800 font-bold break-all">
+                                    {col.left || ''}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Right Side */}
+                            <div className="flex-1 relative">
+                              <div className="absolute top-2 right-2 text-xs text-pink-600/70 font-bold">R</div>
+                              {editingCell && editingCell.row === rowIndex &&
+                                editingCell.col === colIndex && editingCell.side === 'right' ? (
+                                <div className="h-full flex items-center justify-center p-2">
+                                  <input
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    className="w-full h-full px-3 text-sm bg-white border-2 border-pink-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
+                                  onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
+                                >
+                                  <span className="text-sm font-mono text-gray-800 font-bold break-all">
+                                    {col.right || ''}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Right Column Sidebar - Now below everything in a grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Courses List */}
             <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center">
@@ -1439,7 +1433,7 @@ function App() {
                 </div>
               </div>
               
-              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
                 {courses.length > 0 ? (
                   courses.map((course) => (
                     <div 
@@ -1479,7 +1473,7 @@ function App() {
               </div>
             </div>
 
-            {/* Summary Preview - SECOND */}
+            {/* Summary Preview */}
             <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center mb-6">
                 <span className="mr-3 text-3xl text-purple-500">📊</span>
