@@ -1017,7 +1017,7 @@ const generateRegisterNumbers = () => {
             <span><strong>Date:</strong> ${examDate || '_______________'}</span>
             <span><strong>Session:</strong> ${session}</span>
             <span><strong>Hall:</strong> ${examHall || '_______________'}</span>
-            <span><strong>Seating:</strong> ${rows} rows × ${columns} columns</span>
+         
             <span><strong>Total Students:</strong> ${totalStudents}</span>
           </div>
         </div>
@@ -1093,26 +1093,7 @@ const generateRegisterNumbers = () => {
           </table>
         </div>
         
-        <!-- Footer -->
-        <div class="footer-section">
-          <div class="footer-notes">
-            Note: Each cell contains two seats - Left side and Right side
-          </div>
-          <div class="signature-section">
-            <div class="signature-box">
-              <div class="signature-line"></div>
-              <div>Hall In-charge</div>
-            </div>
-            <div class="signature-box">
-              <div class="signature-line"></div>
-              <div>Invigilator</div>
-            </div>
-            <div class="signature-box">
-              <div class="signature-line"></div>
-              <div>Chief Superintendent</div>
-            </div>
-          </div>
-        </div>
+       
       </div>
       
       <script>
@@ -1393,7 +1374,7 @@ const generateRegisterNumbers = () => {
             <div className="mb-8">
               <label className="block text-sm font-medium text-gray-700 mb-4">Fill Side First</label>
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'left' ? 'scale-105' : 'hover:scale-105'}`}>
+                <label className={`relative cursor-pointer transition-all duration-300 mx-2 ${fillSide === 'left' ? 'scale-105' : 'hover:scale-105'}`}>
                   <input
                     type="radio"
                     value="left"
@@ -1407,13 +1388,13 @@ const generateRegisterNumbers = () => {
                         ⬅️
                       </div>
                       <div>
-                        <div className="text-lg font-bold text-gray-800">Left Side</div>
-                        <div className="text-sm text-gray-600">Fill left seats first</div>
+                        <div className="text-lg font-bold text-gray-800 ">Left Side</div>
+                        <div className="text-sm text-gray-600 ">Fill left seats first</div>
                       </div>
                     </div>
                   </div>
                 </label>
-                <label className={`relative cursor-pointer transition-all duration-300 ${fillSide === 'right' ? 'scale-105' : 'hover:scale-105'}`}>
+                <label className={`relative cursor-pointer transition-all mx-2 duration-300 ${fillSide === 'right' ? 'scale-105' : 'hover:scale-105'}`}>
                   <input
                     type="radio"
                     value="right"
