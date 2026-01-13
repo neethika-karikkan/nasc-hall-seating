@@ -1097,75 +1097,58 @@ const generateRegisterNumbers = () => {
       </div>
       
       <script>
-        window.onload = function() {
-          // Calculate optimal row heights
-          const container = document.querySelector('.print-container');
-          const seatingTable = document.querySelector('.seating-table');
-          const summarySection = document.querySelector('.summary-section');
-        
-          
-          // Get the available height for seating table
-          const headerHeight = document.querySelector('.header').offsetHeight;
-          const summaryHeight = summarySection.offsetHeight;
-         
-          const availableHeight = window.innerHeight - headerHeight - summaryHeight - footerHeight - 30; // 30px for margins
-          
-          const rows = ${rows};
-          
-          // Calculate row height for seating table
-          const seatingRowHeight = Math.max(20, Math.floor(availableHeight / rows) - 2);
-          
-          // Set row heights
-          const tableRows = seatingTable.querySelectorAll('tbody tr');
-          tableRows.forEach(row => {
-            row.style.height = seatingRowHeight + 'px';
-          });
-          
-          // Also set the cells height
-          const cells = seatingTable.querySelectorAll('td');
-          cells.forEach(cell => {
-            cell.style.height = seatingRowHeight + 'px';
-            // Adjust font size based on row height
-            const seatCell = cell.querySelector('.seat-cell');
-            const leftSeat = cell.querySelector('.left-seat');
-            const rightSeat = cell.querySelector('.right-seat');
-            
-            if (seatingRowHeight < 25) {
-              leftSeat.style.fontSize = '5.5pt';
-              rightSeat.style.fontSize = '5.5pt';
-            } else if (seatingRowHeight < 30) {
-              leftSeat.style.fontSize = '6pt';
-              rightSeat.style.fontSize = '6pt';
-            } else {
-              leftSeat.style.fontSize = '6.5pt';
-              rightSeat.style.fontSize = '6.5pt';
-            }
-          });
-          
-          // Adjust summary table row heights if needed
-          const summaryRows = summarySection.querySelectorAll('tbody tr');
-          const summaryAvailableHeight = window.innerHeight - headerHeight - availableHeight - footerHeight - 40;
-          const summaryRowCount = summaryRows.length + 2; // +2 for header and footer
-          const summaryRowHeight = Math.max(20, Math.floor(summaryAvailableHeight / summaryRowCount));
-          
-          summaryRows.forEach(row => {
-            row.style.height = summaryRowHeight + 'px';
-          });
-          
-          // Print after a short delay to ensure layout is calculated
-          setTimeout(function() {
-            window.print();
-            setTimeout(function() {
-              window.close();
-            }, 100);
-          }, 300);
-        };
-        
-        // Handle resize for preview
-        window.onresize = function() {
-          window.onload();
-        };
-      </script>
+  window.onload = function() {
+    // Calculate optimal row heights
+    const seatingTable = document.querySelector('.seating-table');
+    const summarySection = document.querySelector('.summary-section');
+    
+    // Get the available height for seating table
+    const headerHeight = document.querySelector('.header').offsetHeight;
+    const summaryHeight = summarySection.offsetHeight;
+    const availableHeight = window.innerHeight - headerHeight - summaryHeight - 20; // Fixed: removed footerHeight
+    
+    const rows = ${rows};
+    
+    // Calculate row height for seating table
+    const seatingRowHeight = Math.max(15, Math.floor(availableHeight / rows) - 1);
+    
+    // Set row heights
+    const tableRows = seatingTable.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+      row.style.height = seatingRowHeight + 'px';
+    });
+    
+    // Also set the cells height
+    const cells = seatingTable.querySelectorAll('td');
+    cells.forEach(cell => {
+      cell.style.height = seatingRowHeight + 'px';
+      // Adjust font size based on row height
+      const leftSeat = cell.querySelector('.left-seat');
+      const rightSeat = cell.querySelector('.right-seat');
+      
+      if (seatingRowHeight < 20) {
+        if (leftSeat) leftSeat.style.fontSize = '5pt';
+        if (rightSeat) rightSeat.style.fontSize = '5pt';
+      } else if (seatingRowHeight < 25) {
+        if (leftSeat) leftSeat.style.fontSize = '5.5pt';
+        if (rightSeat) rightSeat.style.fontSize = '5.5pt';
+      } else {
+        if (leftSeat) leftSeat.style.fontSize = '6pt';
+        if (rightSeat) rightSeat.style.fontSize = '6pt';
+      }
+    });
+    
+    // Remove the summary table height adjustment section - it's not needed
+    
+    // Print after a short delay to ensure layout is calculated
+    setTimeout(function() {
+      window.print();
+      setTimeout(function() {
+        window.close();
+      }, 100);
+    }, 200);
+  };
+</script>
     </body>
     </html>
   `;
