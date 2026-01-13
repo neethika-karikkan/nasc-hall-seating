@@ -41,7 +41,7 @@ function App() {
 
   // State for the seating data
   const [seatingData, setSeatingData] = useState(initializeSeatingData());
-console.log(seatingData);
+
   // State for saved courses
   const [courses, setCourses] = useState([]);
 
@@ -295,6 +295,7 @@ console.log(seatingData);
     }
 
     const regNumbers = generateRegisterNumbers();
+    console.log("111111111111111111",regNumbers);
     if (regNumbers.length === 0) {
       alert('Please enter valid register numbers');
       return;
