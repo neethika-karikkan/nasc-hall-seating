@@ -928,7 +928,7 @@ const generateRegisterNumbers = () => {
             <thead>
               <tr>
                 ${Array.from({ length: columns }).map((_, colIndex) => `
-                  <th>Column ${colIndex + 1}<br/><small>${colIndex % 2 === 0 ? 'Top to Bottom' : 'Bottom to Top'}</small></th>
+                  <th>Column ${colIndex + 1}</th>
                 `).join('')}
               </tr>
             </thead>
@@ -990,11 +990,7 @@ const generateRegisterNumbers = () => {
             </tfoot>
           </table>
           
-          <!-- Signature -->
-          <div class="signature">
-            <div class="signature-line"></div>
-            <div class="footer">Name and Signature of the Hall Superintendent</div>
-          </div>
+        
         </div>
         
         <script>
@@ -1564,10 +1560,7 @@ const generateRegisterNumbers = () => {
                 </table>
               </div>
               
-              <div className="mt-8 pt-6 border-t border-purple-200 text-center">
-                <div className="h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent mb-3"></div>
-                <p className="text-sm text-gray-600">Name and Signature of the Hall Superintendent</p>
-              </div>
+             
             </div>
           </div>
         </div>
