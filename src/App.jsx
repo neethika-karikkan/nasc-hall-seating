@@ -1102,7 +1102,7 @@ const generateRegisterNumbers = () => {
           const container = document.querySelector('.print-container');
           const seatingTable = document.querySelector('.seating-table');
           const summarySection = document.querySelector('.summary-section');
-          const footerSection = document.querySelector('.footer-section');
+        
           
           // Get the available height for seating table
           const headerHeight = document.querySelector('.header').offsetHeight;
