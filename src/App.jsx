@@ -41,7 +41,7 @@ function App() {
 
   // State for the seating data
   const [seatingData, setSeatingData] = useState(initializeSeatingData());
-
+console.log(seatingData);
   // State for saved courses
   const [courses, setCourses] = useState([]);
 
