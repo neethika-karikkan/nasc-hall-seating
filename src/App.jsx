@@ -4,7 +4,7 @@ function App() {
   // State for exam details
   const [examDate, setExamDate] = useState('');
   const [examHall, setExamHall] = useState('');
-  const [session, setSession] = useState('AM'); // AM or PM
+  const [session, setSession] = useState('FN'); // FN or AN
 
   // State for seating configuration
   const [rows, setRows] = useState(7);
@@ -1033,31 +1033,31 @@ function App() {
                     <div className="relative">
                       <input
                         type="radio"
-                        value="AM"
-                        checked={session === 'AM'}
-                        onChange={() => setSession('AM')}
+                        value="FN"
+                        checked={session === 'FN'}
+                        onChange={() => setSession('FN')}
                         className="sr-only"
                       />
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'AM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
-                        {session === 'AM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'FN' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                        {session === 'FN' && <div className="w-2 h-2 rounded-full bg-white"></div>}
                       </div>
                     </div>
-                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'AM' ? 'text-purple-600' : ''}`}>AM</span>
+                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'FN' ? 'text-purple-600' : ''}`}>FN</span>
                   </label>
                   <label className="flex items-center space-x-2 cursor-pointer group">
                     <div className="relative">
                       <input
                         type="radio"
-                        value="PM"
-                        checked={session === 'PM'}
-                        onChange={() => setSession('PM')}
+                        value="AN"
+                        checked={session === 'AN'}
+                        onChange={() => setSession('AN')}
                         className="sr-only"
                       />
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'PM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
-                        {session === 'PM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'AN' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                        {session === 'AN' && <div className="w-2 h-2 rounded-full bg-white"></div>}
                       </div>
                     </div>
-                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'PM' ? 'text-purple-600' : ''}`}>PM</span>
+                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'AN' ? 'text-purple-600' : ''}`}>AN</span>
                   </label>
                 </div>
               </div>
