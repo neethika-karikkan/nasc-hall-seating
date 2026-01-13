@@ -154,35 +154,62 @@ function App() {
     return match ? match[1] : null;
   };
 
-  // Generate register numbers list
-  const generateRegisterNumbers = () => {
-    try {
-      const getPrefix = (str) => {
-        const match = str.match(/^(.*?)(\d+)$/);
-        if (!match) return { prefix: str, number: 0 };
-        return { prefix: match[1], number: parseInt(match[2]) };
+const generateRegisterNumbers = () => {
+  try {
+    const extractNumberInfo = (str) => {
+      // Find all trailing digits
+      const match = str.match(/^(.*?)(\d+)$/);
+      if (!match) return { prefix: str, numberStr: '', numValue: 0 };
+      
+      return {
+        prefix: match[1],
+        numberStr: match[2],  // Original numeric string with any leading zeros
+        numValue: parseInt(match[2])
       };
+    };
 
-      const startInfo = getPrefix(startRegNo);
-      const endInfo = getPrefix(endRegNo);
+    const startInfo = extractNumberInfo(startRegNo);
+    const endInfo = extractNumberInfo(endRegNo);
 
-      if (startInfo.prefix !== endInfo.prefix) {
-        return [];
-      }
-
-      const numbers = [];
-      const maxDigits = startRegNo.match(/\d+/)[0].length;
-
-      for (let i = startInfo.number; i <= endInfo.number; i++) {
-        const numStr = i.toString().padStart(maxDigits, '0');
-        numbers.push(`${startInfo.prefix}${numStr}`);
-      }
-
-      return numbers;
-    } catch (error) {
+    if (startInfo.prefix !== endInfo.prefix) {
       return [];
     }
-  };
+
+    const numbers = [];
+    const startNum = startInfo.numValue;
+    const endNum = endInfo.numValue;
+    
+    // Determine the padding length
+    // We pad based on the original number string length, unless numbers roll over (e.g., 99 -> 100)
+    const startLength = startInfo.numberStr.length;
+    const endLength = endInfo.numberStr.length;
+    
+    // If both have same number of digits OR end has more digits, we might need dynamic padding
+    if (startLength === endLength) {
+      // Same digit count, pad to that length
+      for (let i = startNum; i <= endNum; i++) {
+        const formattedNum = i.toString().padStart(startLength, '0');
+        numbers.push(`${startInfo.prefix}${formattedNum}`);
+      }
+    } else {
+      // Different digit counts (e.g., 99 -> 101), handle dynamically
+      const maxLength = Math.max(startLength, endLength);
+      const minLength = Math.min(startLength, endLength);
+      
+      for (let i = startNum; i <= endNum; i++) {
+        // Determine if we need to pad based on the number of digits
+        const numStr = i.toString();
+        const formattedNum = numStr.length < maxLength ? 
+          numStr.padStart(maxLength, '0') : numStr;
+        numbers.push(`${startInfo.prefix}${formattedNum}`);
+      }
+    }
+
+    return numbers;
+  } catch (error) {
+    return [];
+  }
+};
 
   // Fill seats with register numbers based on selected side
   const fillSeatsWithRegisterNumbers = (regNumbers, courseId) => {
@@ -295,7 +322,7 @@ function App() {
     }
 
     const regNumbers = generateRegisterNumbers();
-    console.log("111111111111111111",regNumbers);
+
     if (regNumbers.length === 0) {
       alert('Please enter valid register numbers');
       return;
