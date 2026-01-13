@@ -1374,9 +1374,9 @@ function App() {
                         className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
                         onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
                       >
-                        <span className="text-sm font-mono text-gray-800 font-bold break-all whitespace-normal">
-                          {col.left || ''}
-                        </span>
+                       <span className="text-sm font-mono text-gray-800 font-bold whitespace-normal">
+  {col.left || ''}
+</span>
                       </div>
                     )}
                   </div>
@@ -1404,9 +1404,10 @@ function App() {
                         className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
                         onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
                       >
-                        <span className="text-sm font-mono text-gray-800 font-bold break-all whitespace-normal">
-                          {col.right || ''}
-                        </span>
+                       <span className="text-sm font-mono text-gray-800 font-bold whitespace-normal">
+  {col.right || ''}
+</span>
+
                       </div>
                     )}
                   </div>
