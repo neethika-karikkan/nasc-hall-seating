@@ -1317,107 +1317,108 @@ function App() {
           </div>
 
           {/* Seating Arrangement Card - Now full width and outside the grid */}
-          <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                <span className="mr-3 text-3xl text-purple-500">🪑</span>
-                Seating Arrangement
-              </h2>
-              <div className="text-sm text-gray-600">
-                Click any seat to edit • L = Left • R = Right
+{/* Seating Arrangement Card - Now full width and outside the grid */}
+<div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+  <div className="flex items-center justify-between mb-6">
+    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+      <span className="mr-3 text-3xl text-purple-500">🪑</span>
+      Seating Arrangement
+    </h2>
+    <div className="text-sm text-gray-600">
+      Click any seat to edit • L = Left • R = Right
+    </div>
+  </div>
+  
+  <div className="overflow-x-auto rounded-2xl border border-purple-200 bg-purple-50/30 p-2">
+    <table className="w-full">
+      <thead>
+        <tr>
+          {Array.from({ length: columns }).map((_, colIndex) => (
+            <th key={colIndex} className="px-4 py-3 text-center">
+              <div className="flex flex-col items-center">
+                <span className="font-bold text-gray-800 text-lg">Column {colIndex + 1}</span>
+                <span className={`text-xs ${colIndex % 2 === 0 ? 'text-purple-600' : 'text-pink-600'} font-medium`}>
+                  {colIndex % 2 === 0 ? '↓ Top-Bottom' : '↑ Bottom-Top'}
+                </span>
               </div>
-            </div>
-            
-            <div className="overflow-x-auto rounded-2xl border border-purple-200 bg-purple-50/30 p-2">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    {Array.from({ length: columns }).map((_, colIndex) => (
-                      <th key={colIndex} className="px-4 py-3 text-center">
-                        <div className="flex flex-col items-center">
-                          <span className="font-bold text-gray-800 text-lg">Column {colIndex + 1}</span>
-                          <span className={`text-xs ${colIndex % 2 === 0 ? 'text-purple-600' : 'text-pink-600'} font-medium`}>
-                            {colIndex % 2 === 0 ? '↓ Top-Bottom' : '↑ Bottom-Top'}
-                          </span>
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {seatingData.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {row.map((col, colIndex) => (
-                        <td key={colIndex} className="p-2">
-                          <div className="flex h-28 bg-gradient-to-br from-white to-purple-50 rounded-xl border border-purple-200 hover:border-purple-400 transition-all duration-300 hover:scale-105">
-                            {/* Left Side */}
-                            <div className="flex-1 relative border-r border-purple-200">
-                              <div className="absolute top-2 left-2 text-xs text-purple-600/70 font-bold">L</div>
-                              {editingCell && editingCell.row === rowIndex &&
-                                editingCell.col === colIndex && editingCell.side === 'left' ? (
-                                <div className="h-full flex items-center justify-center p-2">
-                                  <input
-                                    type="text"
-                                    value={editValue}
-                                    onChange={(e) => setEditValue(e.target.value)}
-                                    className="w-full h-full px-3 text-sm bg-white border-2 border-purple-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') saveEdit();
-                                      if (e.key === 'Escape') cancelEdit();
-                                    }}
-                                  />
-                                </div>
-                              ) : (
-                                <div
-                                  className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
-                                  onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
-                                >
-                                  <span className="text-sm font-mono text-gray-800 font-bold break-all">
-                                    {col.left || ''}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                            
-                            {/* Right Side */}
-                            <div className="flex-1 relative">
-                              <div className="absolute top-2 right-2 text-xs text-pink-600/70 font-bold">R</div>
-                              {editingCell && editingCell.row === rowIndex &&
-                                editingCell.col === colIndex && editingCell.side === 'right' ? (
-                                <div className="h-full flex items-center justify-center p-2">
-                                  <input
-                                    type="text"
-                                    value={editValue}
-                                    onChange={(e) => setEditValue(e.target.value)}
-                                    className="w-full h-full px-3 text-sm bg-white border-2 border-pink-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-pink-400"
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') saveEdit();
-                                      if (e.key === 'Escape') cancelEdit();
-                                    }}
-                                  />
-                                </div>
-                              ) : (
-                                <div
-                                  className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
-                                  onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
-                                >
-                                  <span className="text-sm font-mono text-gray-800 font-bold break-all">
-                                    {col.right || ''}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {seatingData.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((col, colIndex) => (
+              <td key={colIndex} className="p-2">
+                <div className="flex h-28 bg-gradient-to-br from-white to-purple-50 rounded-xl border border-purple-200 hover:border-purple-400 transition-all duration-300 hover:scale-105">
+                  {/* Left Side */}
+                  <div className="flex-1 relative border-r border-purple-200">
+                    <div className="absolute top-2 left-2 text-xs text-purple-600/70 font-bold">L</div>
+                    {editingCell && editingCell.row === rowIndex &&
+                      editingCell.col === colIndex && editingCell.side === 'left' ? (
+                      <div className="h-full flex items-center justify-center p-2">
+                        <input
+                          type="text"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="w-full h-full px-3 text-sm bg-white border-2 border-purple-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveEdit();
+                            if (e.key === 'Escape') cancelEdit();
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
+                        onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
+                      >
+                        <span className="text-sm font-mono text-gray-800 font-bold break-all whitespace-normal">
+                          {col.left || ''}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Right Side */}
+                  <div className="flex-1 relative">
+                    <div className="absolute top-2 right-2 text-xs text-pink-600/70 font-bold">R</div>
+                    {editingCell && editingCell.row === rowIndex &&
+                      editingCell.col === colIndex && editingCell.side === 'right' ? (
+                      <div className="h-full flex items-center justify-center p-2">
+                        <input
+                          type="text"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="w-full h-full px-3 text-sm bg-white border-2 border-pink-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-pink-400"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveEdit();
+                            if (e.key === 'Escape') cancelEdit();
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
+                        onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
+                      >
+                        <span className="text-sm font-mono text-gray-800 font-bold break-all whitespace-normal">
+                          {col.right || ''}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
 
           {/* Right Column Sidebar - Now below everything in a grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
