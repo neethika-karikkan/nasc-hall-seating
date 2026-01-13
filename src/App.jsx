@@ -770,165 +770,253 @@ const generateRegisterNumbers = () => {
   const totalStudents = courses.reduce((sum, course) => sum + course.regCount, 0);
 
   // Handle print with landscape orientation
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    
-    const printContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Hall Seating Arrangement</title>
-        <style>
-          @page {
-            size: landscape;
-            margin: 0.5cm;
+const handlePrint = () => {
+  const printWindow = window.open('', '_blank');
+  
+  // Calculate totals for summary
+  const totalStudents = seatingData.reduce((total, row) => {
+    return total + row.reduce((rowTotal, col) => {
+      return rowTotal + (col.left ? 1 : 0) + (col.right ? 1 : 0);
+    }, 0);
+  }, 0);
+
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Hall Seating Arrangement</title>
+      <style>
+        @page {
+          size: A4 landscape;
+          margin: 0.2cm;
+        }
+        
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        
+        body {
+          font-family: 'Times New Roman', serif;
+          font-size: 9pt;
+          margin: 0;
+          padding: 0;
+          line-height: 1;
+        }
+        
+        .print-container {
+          width: 100%;
+          padding: 2px;
+        }
+        
+        .header {
+          text-align: center;
+          margin-bottom: 8px;
+        }
+        
+        .college-name {
+          font-size: 12pt;
+          font-weight: bold;
+          margin-bottom: 2px;
+          text-decoration: underline;
+        }
+        
+        .title {
+          font-size: 11pt;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        
+        .exam-details {
+          font-size: 9pt;
+          margin-bottom: 8px;
+          padding-bottom: 4px;
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 15px;
+        }
+        
+        .exam-details span {
+          white-space: nowrap;
+        }
+        
+        .seating-table-container {
+          width: 100%;
+          margin-bottom: 5px;
+          overflow: hidden;
+        }
+        
+        .seating-table {
+          width: 100%;
+          border-collapse: collapse;
+          table-layout: fixed;
+          font-size: 7pt;
+        }
+        
+        .seating-table th {
+          background-color: #f0f0f0;
+          border: 1px solid #000;
+          padding: 2px;
+          text-align: center;
+          font-weight: bold;
+          height: 20px;
+          font-size: 7pt;
+        }
+        
+        .seating-table td {
+          border: 1px solid #000;
+          padding: 1px;
+          text-align: center;
+          vertical-align: top;
+          height: 25px;
+          overflow: hidden;
+        }
+        
+        .seat-cell {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          height: 100%;
+          width: 100%;
+        }
+        
+        .left-seat {
+          width: 48%;
+          text-align: left;
+          padding-left: 2px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 6.5pt;
+          line-height: 1;
+        }
+        
+        .right-seat {
+          width: 48%;
+          text-align: left;
+          padding-left: 2px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 6.5pt;
+          line-height: 1;
+        }
+        
+        .summary-section {
+          width: 100%;
+          margin-top: 5px;
+        }
+        
+        .summary-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 8pt;
+          margin-top: 3px;
+        }
+        
+        .summary-table th {
+          background-color: #f0f0f0;
+          border: 1px solid #000;
+          padding: 3px 2px;
+          text-align: center;
+          font-weight: bold;
+          font-size: 8pt;
+        }
+        
+        .summary-table td {
+          border: 1px solid #000;
+          padding: 3px 2px;
+          text-align: center;
+          font-size: 8pt;
+        }
+        
+        .summary-table tfoot td {
+          font-weight: bold;
+          padding: 3px 2px;
+        }
+        
+        .footer-notes {
+          margin-top: 5px;
+          font-size: 8pt;
+          text-align: center;
+        }
+        
+        .signature-section {
+          margin-top: 8px;
+          display: flex;
+          justify-content: space-between;
+          font-size: 8pt;
+        }
+        
+        .signature-box {
+          text-align: center;
+          width: 30%;
+        }
+        
+        .signature-line {
+          width: 80%;
+          border-top: 1px solid #000;
+          margin: 15px auto 2px;
+        }
+        
+        .compact-row {
+          margin-bottom: 2px;
+        }
+        
+        /* Force single page */
+        .page-break {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        /* Adjust column widths based on number of columns */
+        ${Array.from({ length: columns }).map((_, i) => `
+          .seating-table th:nth-child(${i + 1}),
+          .seating-table td:nth-child(${i + 1}) {
+            width: ${100 / columns}%;
+          }
+        `).join('')}
+        
+        @media print {
+          .no-print {
+            display: none;
           }
           
           body {
-            font-family: 'Times New Roman', serif;
-            margin: 0;
-            padding: 0;
-          }
-          
-          .print-container {
-            width: 100%;
-          }
-          
-          .header {
-            text-align: center;
-            margin-bottom: 20px;
-          }
-          
-          .college-name {
-            font-size: 18pt;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-decoration: underline;
-          }
-          
-          .title {
-            font-size: 16pt;
-            font-weight: bold;
-            margin-bottom: 15px;
-          }
-          
-          .exam-details {
-            font-size: 11pt;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 10px;
-          }
-          
-          .exam-details span {
-            margin-right: 30px;
-          }
-          
-          .seating-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 9pt;
-          }
-          
-          .seating-table th {
-            background-color: #f0f0f0;
-            border: 1px solid #000;
-            padding: 5px;
-            text-align: center;
-            font-weight: bold;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
           
           .seating-table td {
-            border: 1px solid #000;
-            padding: 8px 4px;
-            text-align: center;
-            vertical-align: middle;
-            height: 35px;
+            height: 23px !important;
           }
-          
-          .seat-cell {
-            display: flex;
-            justify-content: space-between;
-            height: 100%;
-          }
-          
-          .left-seat {
-            width: 48%;
-            text-align: left;
-            padding-left: 5px;
-            border-right: 1px solid #ddd;
-          }
-          
-          .right-seat {
-            width: 48%;
-            text-align: left;
-            padding-left: 5px;
-          }
-          
-          .summary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 25px;
-            font-size: 10pt;
-          }
-          
-          .summary-table th {
-            background-color: #f0f0f0;
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: center;
-            font-weight: bold;
-          }
-          
-          .summary-table td {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: center;
-          }
-          
-          .signature {
-            margin-top: 40px;
-            text-align: center;
-          }
-          
-          .signature-line {
-            width: 300px;
-            border-top: 1px solid #000;
-            margin: 0 auto 5px;
-          }
-          
-          .footer {
-            font-size: 10pt;
-            margin-top: 5px;
-          }
-          
-          @media print {
-            .no-print {
-              display: none;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="print-container">
-          <!-- Header -->
-          <div class="header">
-            <div class="college-name">NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</div>
-            <div class="title">HALL SEATING ARRANGEMENT</div>
-            <div class="exam-details">
-              <span><strong>Date:</strong> ${examDate || '_______________'}</span>
-              <span><strong>Session:</strong> ${session}</span>
-              <span><strong>Hall:</strong> ${examHall || '_______________'}</span>
-              <span><strong>Seating:</strong> ${rows} rows × ${columns} columns</span>
-            </div>
+        }
+      </style>
+    </head>
+    <body>
+      <div class="print-container page-break">
+        <!-- Header -->
+        <div class="header">
+          <div class="college-name">NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</div>
+          <div class="title">HALL SEATING ARRANGEMENT</div>
+          <div class="exam-details">
+            <span><strong>Date:</strong> ${examDate || '_______________'}</span>
+            <span><strong>Session:</strong> ${session}</span>
+            <span><strong>Hall:</strong> ${examHall || '_______________'}</span>
+            <span><strong>Seating:</strong> ${rows} rows × ${columns} columns</span>
+            <span><strong>Total Students:</strong> ${totalStudents}</span>
           </div>
-          
-          <!-- Seating Table -->
+        </div>
+        
+        <!-- Seating Table -->
+        <div class="seating-table-container page-break">
           <table class="seating-table">
             <thead>
               <tr>
                 ${Array.from({ length: columns }).map((_, colIndex) => `
-                  <th>Column ${colIndex + 1}</th>
+                  <th>Col ${colIndex + 1}</th>
                 `).join('')}
               </tr>
             </thead>
@@ -938,8 +1026,8 @@ const generateRegisterNumbers = () => {
                   ${row.map((col, colIndex) => `
                     <td>
                       <div class="seat-cell">
-                        <div class="left-seat">${col.left || ''}</div>
-                        <div class="right-seat">${col.right || ''}</div>
+                        <div class="left-seat" title="${col.left || ''}">${col.left || ''}</div>
+                        <div class="right-seat" title="${col.right || ''}">${col.right || ''}</div>
                       </div>
                     </td>
                   `).join('')}
@@ -947,30 +1035,32 @@ const generateRegisterNumbers = () => {
               `).join('')}
             </tbody>
           </table>
-          
-          <!-- Summary Table -->
+        </div>
+        
+        <!-- Summary Table -->
+        <div class="summary-section page-break">
           <table class="summary-table">
             <thead>
               <tr>
-                <th>Department</th>
-                <th>Course Code</th>
-                <th>Course Title</th>
-                <th>Total Students</th>
-                <th>PRESENT</th>
-                <th>ABSENT</th>
+                <th style="width: 20%">Department</th>
+                <th style="width: 15%">Course Code</th>
+                <th style="width: 30%">Course Title</th>
+                <th style="width: 10%">Total Students</th>
+                <th style="width: 12%">PRESENT</th>
+                <th style="width: 13%">ABSENT</th>
               </tr>
             </thead>
             <tbody>
               ${courses.length > 0 ? courses.map(course => `
                 <tr>
-                  <td>${course.department}</td>
-                  <td>${course.courseCode}</td>
-                  <td>${course.courseTitle}</td>
-                  <td>${course.regCount}</td>
+                  <td>${course.department || '_______________'}</td>
+                  <td>${course.courseCode || '_______________'}</td>
+                  <td>${course.courseTitle || '_______________'}</td>
+                  <td>${course.regCount || '0'}</td>
                   <td>_______________</td>
                   <td>_______________</td>
                 </tr>
-              `).join('') : `
+              `).join('') : Array.from({ length: Math.max(1, 3 - courses.length) }).map(() => `
                 <tr>
                   <td>_______________</td>
                   <td>_______________</td>
@@ -979,36 +1069,66 @@ const generateRegisterNumbers = () => {
                   <td>_______________</td>
                   <td>_______________</td>
                 </tr>
-              `}
+              `).join('')}
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3" style="text-align: right; font-weight: bold;">TOTAL STUDENTS:</td>
-                <td style="font-weight: bold;">${totalStudents}</td>
+                <td colspan="3" style="text-align: right; padding-right: 10px;"><strong>TOTAL:</strong></td>
+                <td><strong>${totalStudents}</strong></td>
                 <td colspan="2"></td>
               </tr>
             </tfoot>
           </table>
-          
-        
         </div>
         
-        <script>
-          window.onload = function() {
+        <!-- Footer Notes -->
+        <div class="footer-notes">
+          <div>Note: Each cell contains two seats - Left side and Right side</div>
+        </div>
+        
+        <!-- Signatures -->
+        <div class="signature-section">
+          <div class="signature-box">
+            <div class="signature-line"></div>
+            <div>Hall In-charge</div>
+          </div>
+          <div class="signature-box">
+            <div class="signature-line"></div>
+            <div>Invigilator</div>
+          </div>
+          <div class="signature-box">
+            <div class="signature-line"></div>
+            <div>Chief Superintendent</div>
+          </div>
+        </div>
+      </div>
+      
+      <script>
+        window.onload = function() {
+          // Adjust table cell heights if needed
+          const cells = document.querySelectorAll('.seating-table td');
+          let maxHeight = 0;
+          
+          cells.forEach(cell => {
+            cell.style.height = '23px';
+          });
+          
+          // Print after a short delay
+          setTimeout(function() {
             window.print();
             setTimeout(function() {
               window.close();
             }, 100);
-          };
-        </script>
-      </body>
-      </html>
-    `;
+          }, 200);
+        };
+      </script>
+    </body>
+    </html>
+  `;
 
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-  };
-
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
