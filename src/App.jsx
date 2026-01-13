@@ -1005,7 +1005,7 @@ const handlePrint = () => {
             <span><strong>Date:</strong> ${examDate || '_______________'}</span>
             <span><strong>Session:</strong> ${session}</span>
             <span><strong>Hall:</strong> ${examHall || '_______________'}</span>
-            <span><strong>Seating:</strong> ${rows} rows × ${columns} columns</span>
+           
             <span><strong>Total Students:</strong> ${totalStudents}</span>
           </div>
         </div>
