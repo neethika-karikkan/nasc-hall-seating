@@ -769,8 +769,7 @@ const generateRegisterNumbers = () => {
   const totalFilledSeats = leftSidePosition.filledCount + rightSidePosition.filledCount;
   const totalStudents = courses.reduce((sum, course) => sum + course.regCount, 0);
 
-  // Handle print with landscape orientation
-const handlePrint = () => {
+ const handlePrint = () => {
   const printWindow = window.open('', '_blank');
   
   // Calculate totals for summary
@@ -803,15 +802,22 @@ const handlePrint = () => {
           margin: 0;
           padding: 0;
           line-height: 1;
+          height: 100%;
+          min-height: 100vh;
         }
         
         .print-container {
           width: 100%;
+          height: 100%;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
           padding: 2px;
         }
         
         .header {
           text-align: center;
+          flex-shrink: 0;
           margin-bottom: 8px;
         }
         
@@ -843,13 +849,16 @@ const handlePrint = () => {
         }
         
         .seating-table-container {
+          flex: 1;
           width: 100%;
-          margin-bottom: 5px;
           overflow: hidden;
+          min-height: 0;
+          margin-bottom: 5px;
         }
         
         .seating-table {
           width: 100%;
+          height: 100%;
           border-collapse: collapse;
           table-layout: fixed;
           font-size: 7pt;
@@ -861,7 +870,6 @@ const handlePrint = () => {
           padding: 2px;
           text-align: center;
           font-weight: bold;
-          height: 20px;
           font-size: 7pt;
         }
         
@@ -870,7 +878,6 @@ const handlePrint = () => {
           padding: 1px;
           text-align: center;
           vertical-align: top;
-          height: 25px;
           overflow: hidden;
         }
         
@@ -905,6 +912,7 @@ const handlePrint = () => {
         }
         
         .summary-section {
+          flex-shrink: 0;
           width: 100%;
           margin-top: 5px;
         }
@@ -937,14 +945,19 @@ const handlePrint = () => {
           padding: 3px 2px;
         }
         
+        .footer-section {
+          flex-shrink: 0;
+          margin-top: auto;
+          padding-top: 10px;
+        }
+        
         .footer-notes {
-          margin-top: 5px;
           font-size: 8pt;
           text-align: center;
+          margin-bottom: 10px;
         }
         
         .signature-section {
-          margin-top: 8px;
           display: flex;
           justify-content: space-between;
           font-size: 8pt;
@@ -958,17 +971,7 @@ const handlePrint = () => {
         .signature-line {
           width: 80%;
           border-top: 1px solid #000;
-          margin: 15px auto 2px;
-        }
-        
-        .compact-row {
-          margin-bottom: 2px;
-        }
-        
-        /* Force single page */
-        .page-break {
-          page-break-inside: avoid;
-          break-inside: avoid;
+          margin: 20px auto 5px;
         }
         
         /* Adjust column widths based on number of columns */
@@ -987,16 +990,25 @@ const handlePrint = () => {
           body {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            height: 100vh;
+          }
+          
+          .print-container {
+            height: 100vh;
+          }
+          
+          .seating-table {
+            height: calc(100vh - 350px) !important;
           }
           
           .seating-table td {
-            height: 23px !important;
+            height: calc((100vh - 400px) / ${rows}) !important;
           }
         }
       </style>
     </head>
     <body>
-      <div class="print-container page-break">
+      <div class="print-container">
         <!-- Header -->
         <div class="header">
           <div class="college-name">NEHRU ARTS AND SCIENCE COLLEGE (AUTONOMOUS)</div>
@@ -1005,13 +1017,13 @@ const handlePrint = () => {
             <span><strong>Date:</strong> ${examDate || '_______________'}</span>
             <span><strong>Session:</strong> ${session}</span>
             <span><strong>Hall:</strong> ${examHall || '_______________'}</span>
-           
+            <span><strong>Seating:</strong> ${rows} rows × ${columns} columns</span>
             <span><strong>Total Students:</strong> ${totalStudents}</span>
           </div>
         </div>
         
         <!-- Seating Table -->
-        <div class="seating-table-container page-break">
+        <div class="seating-table-container">
           <table class="seating-table">
             <thead>
               <tr>
@@ -1038,7 +1050,7 @@ const handlePrint = () => {
         </div>
         
         <!-- Summary Table -->
-        <div class="summary-section page-break">
+        <div class="summary-section">
           <table class="summary-table">
             <thead>
               <tr>
@@ -1081,28 +1093,96 @@ const handlePrint = () => {
           </table>
         </div>
         
-       
-        
-      
+        <!-- Footer -->
+        <div class="footer-section">
+          <div class="footer-notes">
+            Note: Each cell contains two seats - Left side and Right side
+          </div>
+          <div class="signature-section">
+            <div class="signature-box">
+              <div class="signature-line"></div>
+              <div>Hall In-charge</div>
+            </div>
+            <div class="signature-box">
+              <div class="signature-line"></div>
+              <div>Invigilator</div>
+            </div>
+            <div class="signature-box">
+              <div class="signature-line"></div>
+              <div>Chief Superintendent</div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <script>
         window.onload = function() {
-          // Adjust table cell heights if needed
-          const cells = document.querySelectorAll('.seating-table td');
-          let maxHeight = 0;
+          // Calculate optimal row heights
+          const container = document.querySelector('.print-container');
+          const seatingTable = document.querySelector('.seating-table');
+          const summarySection = document.querySelector('.summary-section');
+          const footerSection = document.querySelector('.footer-section');
           
-          cells.forEach(cell => {
-            cell.style.height = '23px';
+          // Get the available height for seating table
+          const headerHeight = document.querySelector('.header').offsetHeight;
+          const summaryHeight = summarySection.offsetHeight;
+          const footerHeight = footerSection.offsetHeight;
+          const availableHeight = window.innerHeight - headerHeight - summaryHeight - footerHeight - 30; // 30px for margins
+          
+          const rows = ${rows};
+          
+          // Calculate row height for seating table
+          const seatingRowHeight = Math.max(20, Math.floor(availableHeight / rows) - 2);
+          
+          // Set row heights
+          const tableRows = seatingTable.querySelectorAll('tbody tr');
+          tableRows.forEach(row => {
+            row.style.height = seatingRowHeight + 'px';
           });
           
-          // Print after a short delay
+          // Also set the cells height
+          const cells = seatingTable.querySelectorAll('td');
+          cells.forEach(cell => {
+            cell.style.height = seatingRowHeight + 'px';
+            // Adjust font size based on row height
+            const seatCell = cell.querySelector('.seat-cell');
+            const leftSeat = cell.querySelector('.left-seat');
+            const rightSeat = cell.querySelector('.right-seat');
+            
+            if (seatingRowHeight < 25) {
+              leftSeat.style.fontSize = '5.5pt';
+              rightSeat.style.fontSize = '5.5pt';
+            } else if (seatingRowHeight < 30) {
+              leftSeat.style.fontSize = '6pt';
+              rightSeat.style.fontSize = '6pt';
+            } else {
+              leftSeat.style.fontSize = '6.5pt';
+              rightSeat.style.fontSize = '6.5pt';
+            }
+          });
+          
+          // Adjust summary table row heights if needed
+          const summaryRows = summarySection.querySelectorAll('tbody tr');
+          const summaryAvailableHeight = window.innerHeight - headerHeight - availableHeight - footerHeight - 40;
+          const summaryRowCount = summaryRows.length + 2; // +2 for header and footer
+          const summaryRowHeight = Math.max(20, Math.floor(summaryAvailableHeight / summaryRowCount));
+          
+          summaryRows.forEach(row => {
+            row.style.height = summaryRowHeight + 'px';
+          });
+          
+          // Print after a short delay to ensure layout is calculated
           setTimeout(function() {
             window.print();
             setTimeout(function() {
               window.close();
             }, 100);
-          }, 200);
+          }, 300);
+        };
+        
+        // Handle resize for preview
+        window.onresize = function() {
+          window.onload();
         };
       </script>
     </body>
