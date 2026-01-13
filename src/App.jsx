@@ -1081,26 +1081,9 @@ const handlePrint = () => {
           </table>
         </div>
         
-        <!-- Footer Notes -->
-        <div class="footer-notes">
-          <div>Note: Each cell contains two seats - Left side and Right side</div>
-        </div>
+       
         
-        <!-- Signatures -->
-        <div class="signature-section">
-          <div class="signature-box">
-            <div class="signature-line"></div>
-            <div>Hall In-charge</div>
-          </div>
-          <div class="signature-box">
-            <div class="signature-line"></div>
-            <div>Invigilator</div>
-          </div>
-          <div class="signature-box">
-            <div class="signature-line"></div>
-            <div>Chief Superintendent</div>
-          </div>
-        </div>
+      
       </div>
       
       <script>
