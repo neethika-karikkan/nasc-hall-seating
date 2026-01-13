@@ -1107,7 +1107,7 @@ const generateRegisterNumbers = () => {
           // Get the available height for seating table
           const headerHeight = document.querySelector('.header').offsetHeight;
           const summaryHeight = summarySection.offsetHeight;
-          const footerHeight = footerSection.offsetHeight;
+         
           const availableHeight = window.innerHeight - headerHeight - summaryHeight - footerHeight - 30; // 30px for margins
           
           const rows = ${rows};
