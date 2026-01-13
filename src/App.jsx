@@ -4,7 +4,7 @@ function App() {
   // State for exam details
   const [examDate, setExamDate] = useState('');
   const [examHall, setExamHall] = useState('');
-  const [session, setSession] = useState('FN'); // FN or AN
+  const [session, setSession] = useState('AM'); // AM or PM
 
   // State for seating configuration
   const [rows, setRows] = useState(7);
@@ -119,16 +119,24 @@ function App() {
         return;
       }
 
-      const getPrefix = (str) => {
-        const match = str.match(/^(.*?)(\d+)$/);
+      // Extract prefix and number with 3-digit formatting
+      const getPrefixAndNumber = (str) => {
+        const match = str.match(/^(.*?)(\d{1,3})$/);
         if (!match) return { prefix: str, number: 0 };
-        return { prefix: match[1], number: parseInt(match[2]) };
+        
+        // Ensure number is 3 digits (pad with leading zeros)
+        const number = parseInt(match[2]);
+        return { 
+          prefix: match[1], 
+          number: number
+        };
       };
 
-      const startInfo = getPrefix(startRegNo);
-      const endInfo = getPrefix(endRegNo);
+      const startInfo = getPrefixAndNumber(startRegNo);
+      const endInfo = getPrefixAndNumber(endRegNo);
 
-      if (startInfo.prefix !== endInfo.prefix) {
+      // Check if prefixes match (case insensitive)
+      if (startInfo.prefix.toUpperCase() !== endInfo.prefix.toUpperCase()) {
         setRegCount(0);
         return;
       }
@@ -140,41 +148,105 @@ function App() {
     }
   };
 
+  // Handle start register number input with auto-formatting
+  const handleStartRegNoChange = (e) => {
+    const value = e.target.value.toUpperCase();
+    
+    // Extract prefix and number
+    const match = value.match(/^(.*?)(\d{0,3})$/);
+    if (match) {
+      const prefix = match[1];
+      const numStr = match[2];
+      
+      if (numStr) {
+        // Format number to 3 digits
+        const number = parseInt(numStr);
+        if (!isNaN(number)) {
+          const paddedNum = number.toString().padStart(3, '0');
+          setStartRegNo(prefix + paddedNum);
+        } else {
+          setStartRegNo(prefix);
+        }
+      } else {
+        setStartRegNo(prefix);
+      }
+    } else {
+      setStartRegNo(value);
+    }
+  };
+
+  // Handle end register number input with auto-formatting
+  const handleEndRegNoChange = (e) => {
+    const value = e.target.value.toUpperCase();
+    
+    // Extract prefix and number
+    const match = value.match(/^(.*?)(\d{0,3})$/);
+    if (match) {
+      const prefix = match[1];
+      const numStr = match[2];
+      
+      if (numStr) {
+        // Format number to 3 digits
+        const number = parseInt(numStr);
+        if (!isNaN(number)) {
+          const paddedNum = number.toString().padStart(3, '0');
+          setEndRegNo(prefix + paddedNum);
+        } else {
+          setEndRegNo(prefix);
+        }
+      } else {
+        setEndRegNo(prefix);
+      }
+    } else {
+      setEndRegNo(value);
+    }
+  };
+
   // Extract number from register number
   const extractNumber = (regNo) => {
     if (!regNo) return null;
-    const match = regNo.match(/(\d+)$/);
+    const match = regNo.match(/(\d{3})$/);
     return match ? parseInt(match[1]) : null;
   };
 
   // Extract prefix from register number
   const extractPrefix = (regNo) => {
     if (!regNo) return null;
-    const match = regNo.match(/^(.*?)(\d+)$/);
+    const match = regNo.match(/^(.*?)(\d{3})$/);
     return match ? match[1] : null;
   };
 
-  // Generate register numbers list
+  // Generate register numbers list with proper 3-digit formatting
   const generateRegisterNumbers = () => {
     try {
-      const getPrefix = (str) => {
-        const match = str.match(/^(.*?)(\d+)$/);
+      // If either is empty, return empty array
+      if (!startRegNo || !endRegNo) {
+        return [];
+      }
+
+      // Extract prefix and number with 3-digit parsing
+      const getPrefixAndNumber = (str) => {
+        const match = str.match(/^(.*?)(\d{3})$/);
         if (!match) return { prefix: str, number: 0 };
-        return { prefix: match[1], number: parseInt(match[2]) };
+        return { 
+          prefix: match[1], 
+          number: parseInt(match[2]) 
+        };
       };
 
-      const startInfo = getPrefix(startRegNo);
-      const endInfo = getPrefix(endRegNo);
+      const startInfo = getPrefixAndNumber(startRegNo);
+      const endInfo = getPrefixAndNumber(endRegNo);
 
-      if (startInfo.prefix !== endInfo.prefix) {
+      // Check if prefixes match (case insensitive)
+      if (startInfo.prefix.toUpperCase() !== endInfo.prefix.toUpperCase()) {
         return [];
       }
 
       const numbers = [];
-      const maxDigits = startRegNo.match(/\d+/)[0].length;
-
+      
       for (let i = startInfo.number; i <= endInfo.number; i++) {
-        const numStr = i.toString().padStart(maxDigits, '0');
+        // Always format as 3 digits with leading zeros
+        const numStr = i.toString().padStart(3, '0');
         numbers.push(`${startInfo.prefix}${numStr}`);
       }
 
@@ -638,14 +710,17 @@ function App() {
 
       setSeatingData(newArrangement);
     } else {
-      // Parse the new value
+      // Parse the new value with 3-digit formatting
       const newPrefix = extractPrefix(editValue);
       const newNumber = extractNumber(editValue);
 
       if (!newPrefix || newNumber === null) {
-        alert('Invalid register number format');
+        alert('Invalid register number format. Must end with 3 digits (e.g., 24PGDT001)');
         return;
       }
+
+      // Ensure the number has 3 digits
+      const formattedEditValue = `${newPrefix}${newNumber.toString().padStart(3, '0')}`;
 
       // If this seat is part of a sequence, renumber the entire sequence
       if (sequenceId !== null && sequenceIndex !== null) {
@@ -659,14 +734,12 @@ function App() {
 
           if (editedCellIndex !== -1) {
             const newArrangement = JSON.parse(JSON.stringify(seatingData));
-            const match = editValue.match(/\d+/);
-            const maxDigits = match ? match[0].length : 3;
 
             // Renumber all cells in the sequence starting from the edited position
             for (let i = editedCellIndex; i < sequenceCells.length; i++) {
               const cell = sequenceCells[i];
               const newNum = newNumber + (i - editedCellIndex);
-              const newNumStr = newNum.toString().padStart(maxDigits, '0');
+              const newNumStr = newNum.toString().padStart(3, '0');
               const newRegNo = `${newPrefix}${newNumStr}`;
 
               if (cell.side === 'left') {
@@ -683,12 +756,12 @@ function App() {
           const newArrangement = JSON.parse(JSON.stringify(seatingData));
 
           if (side === 'left') {
-            newArrangement[row][col].left = editValue.toUpperCase();
+            newArrangement[row][col].left = formattedEditValue;
             if (!currentSeat.left) {
               setLeftSidePosition(prev => ({ ...prev, filledCount: prev.filledCount + 1 }));
             }
           } else {
-            newArrangement[row][col].right = editValue.toUpperCase();
+            newArrangement[row][col].right = formattedEditValue;
             if (!currentSeat.right) {
               setRightSidePosition(prev => ({ ...prev, filledCount: prev.filledCount + 1 }));
             }
@@ -710,12 +783,12 @@ function App() {
         const newArrangement = JSON.parse(JSON.stringify(seatingData));
 
         if (side === 'left') {
-          newArrangement[row][col].left = editValue.toUpperCase();
+          newArrangement[row][col].left = formattedEditValue;
           if (!currentSeat.left) {
             setLeftSidePosition(prev => ({ ...prev, filledCount: prev.filledCount + 1 }));
           }
         } else {
-          newArrangement[row][col].right = editValue.toUpperCase();
+          newArrangement[row][col].right = formattedEditValue;
           if (!currentSeat.right) {
             setRightSidePosition(prev => ({ ...prev, filledCount: prev.filledCount + 1 }));
           }
@@ -1033,31 +1106,31 @@ function App() {
                     <div className="relative">
                       <input
                         type="radio"
-                        value="FN"
-                        checked={session === 'FN'}
-                        onChange={() => setSession('FN')}
+                        value="AM"
+                        checked={session === 'AM'}
+                        onChange={() => setSession('AM')}
                         className="sr-only"
                       />
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'FN' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
-                        {session === 'FN' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'AM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                        {session === 'AM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
                       </div>
                     </div>
-                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'FN' ? 'text-purple-600' : ''}`}>FN</span>
+                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'AM' ? 'text-purple-600' : ''}`}>AM</span>
                   </label>
                   <label className="flex items-center space-x-2 cursor-pointer group">
                     <div className="relative">
                       <input
                         type="radio"
-                        value="AN"
-                        checked={session === 'AN'}
-                        onChange={() => setSession('AN')}
+                        value="PM"
+                        checked={session === 'PM'}
+                        onChange={() => setSession('PM')}
                         className="sr-only"
                       />
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'AN' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
-                        {session === 'AN' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${session === 'PM' ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-300'}`}>
+                        {session === 'PM' && <div className="w-2 h-2 rounded-full bg-white"></div>}
                       </div>
                     </div>
-                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'AN' ? 'text-purple-600' : ''}`}>AN</span>
+                    <span className={`text-gray-700 group-hover:text-purple-600 transition-colors ${session === 'PM' ? 'text-purple-600' : ''}`}>PM</span>
                   </label>
                 </div>
               </div>
@@ -1141,42 +1214,73 @@ function App() {
               </div>
             </div>
 
-            {/* Register Numbers */}
+            {/* Register Numbers with 3-digit formatting */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Start Register No.</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Start Register No.
+                  <span className="text-xs text-gray-500 ml-2">Format: 24PGDT001</span>
+                </label>
                 <input
                   type="text"
                   value={startRegNo}
-                  onChange={(e) => setStartRegNo(e.target.value.toUpperCase())}
+                  onChange={handleStartRegNoChange}
                   placeholder="24PGDT001"
                   className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 />
+                {startRegNo && !startRegNo.match(/\d{3}$/) && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    Enter 3-digit number (e.g., 001, 010, 100)
+                  </p>
+                )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">End Register No.</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  End Register No.
+                  <span className="text-xs text-gray-500 ml-2">Format: 24PGDT010</span>
+                </label>
                 <input
                   type="text"
                   value={endRegNo}
-                  onChange={(e) => setEndRegNo(e.target.value.toUpperCase())}
-                  placeholder="24PGDT012"
+                  onChange={handleEndRegNoChange}
+                  placeholder="24PGDT010"
                   className="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-gray-800 font-mono uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 />
+                {endRegNo && !endRegNo.match(/\d{3}$/) && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    Enter 3-digit number (e.g., 001, 010, 100)
+                  </p>
+                )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Total Students</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Total Students
+                  {regCount > 0 && startRegNo && endRegNo && (
+                    <span className="text-xs text-gray-500 ml-2">
+                      {generateRegisterNumbers().join(', ')}
+                    </span>
+                  )}
+                </label>
                 <div className="flex items-center space-x-6">
                   <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-30 blur-sm"></div>
                     <div className="relative w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-                      <span className="text-3xl font-bold text-white">{regCount > 0 ? regCount : '0'}</span>
+                      <span className="text-3xl font-bold text-white">
+                        {regCount > 0 ? regCount : '0'}
+                      </span>
                     </div>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">students</p>
-                    <p className="text-xs text-gray-500">Auto-calculated</p>
+                    <p className="text-xs text-gray-500">
+                      {startRegNo && endRegNo && regCount > 0 ? (
+                        `${startRegNo} to ${endRegNo}`
+                      ) : (
+                        'Auto-calculated'
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1316,112 +1420,110 @@ function App() {
             </div>
           </div>
 
-          {/* Seating Arrangement Card - Now full width and outside the grid */}
-{/* Seating Arrangement Card - Now full width and outside the grid */}
-<div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
-  <div className="flex items-center justify-between mb-6">
-    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-      <span className="mr-3 text-3xl text-purple-500">🪑</span>
-      Seating Arrangement
-    </h2>
-    <div className="text-sm text-gray-600">
-      Click any seat to edit • L = Left • R = Right
-    </div>
-  </div>
-  
-  <div className="overflow-x-auto rounded-2xl border border-purple-200 bg-purple-50/30 p-2">
-    <table className="w-full">
-      <thead>
-        <tr>
-          {Array.from({ length: columns }).map((_, colIndex) => (
-            <th key={colIndex} className="px-4 py-3 text-center">
-              <div className="flex flex-col items-center">
-                <span className="font-bold text-gray-800 text-lg">Column {colIndex + 1}</span>
-                <span className={`text-xs ${colIndex % 2 === 0 ? 'text-purple-600' : 'text-pink-600'} font-medium`}>
-                  {colIndex % 2 === 0 ? '↓ Top-Bottom' : '↑ Bottom-Top'}
-                </span>
+          {/* Seating Arrangement Card */}
+          <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-3 text-3xl text-purple-500">🪑</span>
+                Seating Arrangement
+              </h2>
+              <div className="text-sm text-gray-600">
+                Click any seat to edit • L = Left • R = Right
               </div>
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {seatingData.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((col, colIndex) => (
-              <td key={colIndex} className="p-2">
-                <div className="flex h-28 bg-gradient-to-br from-white to-purple-50 rounded-xl border border-purple-200 hover:border-purple-400 transition-all duration-300 hover:scale-105">
-                  {/* Left Side */}
-                  <div className="flex-1 relative border-r border-purple-200">
-                    <div className="absolute top-2 left-2 text-xs text-purple-600/70 font-bold">L</div>
-                    {editingCell && editingCell.row === rowIndex &&
-                      editingCell.col === colIndex && editingCell.side === 'left' ? (
-                      <div className="h-full flex items-center justify-center p-2">
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="w-full h-full px-3 text-sm bg-white border-2 border-purple-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') saveEdit();
-                            if (e.key === 'Escape') cancelEdit();
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
-                        onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
-                      >
-                       <span className="text-sm font-mono text-gray-800 font-bold whitespace-normal">
-  {col.left || ''}
-</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Right Side */}
-                  <div className="flex-1 relative">
-                    <div className="absolute top-2 right-2 text-xs text-pink-600/70 font-bold">R</div>
-                    {editingCell && editingCell.row === rowIndex &&
-                      editingCell.col === colIndex && editingCell.side === 'right' ? (
-                      <div className="h-full flex items-center justify-center p-2">
-                        <input
-                          type="text"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="w-full h-full px-3 text-sm bg-white border-2 border-pink-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-pink-400"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') saveEdit();
-                            if (e.key === 'Escape') cancelEdit();
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
-                        onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
-                      >
-                       <span className="text-sm font-mono text-gray-800 font-bold whitespace-normal">
-  {col.right || ''}
-</span>
+            </div>
+            
+            <div className="overflow-x-auto rounded-2xl border border-purple-200 bg-purple-50/30 p-2">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    {Array.from({ length: columns }).map((_, colIndex) => (
+                      <th key={colIndex} className="px-4 py-3 text-center">
+                        <div className="flex flex-col items-center">
+                          <span className="font-bold text-gray-800 text-lg">Column {colIndex + 1}</span>
+                          <span className={`text-xs ${colIndex % 2 === 0 ? 'text-purple-600' : 'text-pink-600'} font-medium`}>
+                            {colIndex % 2 === 0 ? '↓ Top-Bottom' : '↑ Bottom-Top'}
+                          </span>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {seatingData.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {row.map((col, colIndex) => (
+                        <td key={colIndex} className="p-2">
+                          <div className="flex h-28 bg-gradient-to-br from-white to-purple-50 rounded-xl border border-purple-200 hover:border-purple-400 transition-all duration-300 hover:scale-105">
+                            {/* Left Side */}
+                            <div className="flex-1 relative border-r border-purple-200">
+                              <div className="absolute top-2 left-2 text-xs text-purple-600/70 font-bold">L</div>
+                              {editingCell && editingCell.row === rowIndex &&
+                                editingCell.col === colIndex && editingCell.side === 'left' ? (
+                                <div className="h-full flex items-center justify-center p-2">
+                                  <input
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    className="w-full h-full px-3 text-sm bg-white border-2 border-purple-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="h-full flex items-center justify-center cursor-pointer hover:bg-purple-50 transition-colors p-3"
+                                  onClick={() => handleCellClick(rowIndex, colIndex, 'left', col.left)}
+                                >
+                                  <span className="text-sm font-mono text-gray-800 font-bold whitespace-normal">
+                                    {col.left || ''}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Right Side */}
+                            <div className="flex-1 relative">
+                              <div className="absolute top-2 right-2 text-xs text-pink-600/70 font-bold">R</div>
+                              {editingCell && editingCell.row === rowIndex &&
+                                editingCell.col === colIndex && editingCell.side === 'right' ? (
+                                <div className="h-full flex items-center justify-center p-2">
+                                  <input
+                                    type="text"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    className="w-full h-full px-3 text-sm bg-white border-2 border-pink-400 rounded-lg text-gray-800 text-center uppercase font-mono focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') saveEdit();
+                                      if (e.key === 'Escape') cancelEdit();
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="h-full flex items-center justify-center cursor-pointer hover:bg-pink-50 transition-colors p-3"
+                                  onClick={() => handleCellClick(rowIndex, colIndex, 'right', col.right)}
+                                >
+                                  <span className="text-sm font-mono text-gray-800 font-bold whitespace-normal">
+                                    {col.right || ''}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-          {/* Right Column Sidebar - Now below everything in a grid */}
+          {/* Right Column Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Courses List */}
             <div className="bg-white rounded-3xl p-6 border border-purple-100 shadow-lg">
